@@ -1,0 +1,16 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="br.thayllo.labdefisica.activity.ReportEditor">
+
+    <item
+        android:id="@+id/generateReport"
+        android:title="@string/generate_report"
+        android:icon="@drawable/ic_pdf_white"
+        app:showAsAction="ifRoom"/>
+    <item
+        android:id="@+id/deleteReport"
+        android:title="@string/delete_report"
+        android:icon="@drawable/ic_delete"
+        app:showAsAction="never"/>
+</menu>

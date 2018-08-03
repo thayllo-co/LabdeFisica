@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimaryDark">#004D40</color>
+    <color name="colorPrimary">#00695C</color>
+    <color name="colorSecondaryDark">#00796B</color>
+    <color name="colorSecondary">#00897b</color>
+    <color name="colorMain">#009688</color>
+    <color name="colorAccent">#00BFA5</color>
+    <color name="navigationBarColor">#004D40</color>
+    <color name="windowBackground">#FFFFFF</color>
+    <color name="windowTransparentBackground">#f0f0f0f0</color>
+    <color name="chatItemSent">#009688</color>
+    <color name="chatItemReceived">#E0F2F1</color>
+    <color name="tableLabel">#aaaaaa</color>
+    <color name="profileBackground">#65ffda</color>
+    <color name="profileBackgroundBorder">#024e41</color>
+    <color name="teste">#96cdb9</color>
+
+    <color name="textColorPrimay">#464646</color>
+    <color name="textColorSecondary">#7c7c7c</color>
+
+    <!--<color name="Teal">#009688</color>-->
+    <color name="teal50">#E0F2F1</color>
+    <color name="teal100">#B2DFDB</color>
+    <color name="teal200">#80CBC4</color>
+    <color name="teal300">#4DB6AC</color>
+    <color name="teal400">#26A69A</color>
+    <color name="teal500">#009688</color>
+    <color name="teal600">#00897B</color>
+    <color name="teal700">#00796B</color>
+    <color name="teal800">#00695C</color>
+    <color name="teal900">#004D40</color>
+
+    <color name="A100">#A7FFEB</color>
+    <color name="A200">#64FFDA</color>
+    <color name="A400">#1DE9B6</color>
+    <color name="A700">#00BFA5</color>
+
+    <color name="PLACID_BLUE">#accbe8</color>
+    <color name="VIOLET_TULIP">#9295ca</color>
+    <color name="HEMLOCK">#9eceb4</color>
+    <color name="PALOMA">#a9b2b1</color>
+    <color name="SAND">#cdb48c</color>
+    <color name="FREESIA">#ffd602</color>
+    <color name="CAYENNE">#e66665</color>
+    <color name="CELOSIA_ORANGE">#f47d43</color>
+    <color name="RADIANT_ORCHID">#ae70af</color>
+    <color name="DAZZLING_BLUE">#077cb6</color>
+
+</resources>

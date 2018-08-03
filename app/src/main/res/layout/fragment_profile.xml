@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".fragment.ProfileFragment">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@drawable/wallpaper">
+
+        <android.support.design.widget.AppBarLayout
+            android:id="@+id/profileAppBarLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:theme="@style/AppTheme.AppBarOverlay"
+            android:background="@color/fui_transparent"
+            app:elevation="0dp">
+
+            <android.support.v7.widget.Toolbar
+                android:id="@+id/profileToolbar"
+                android:layout_width="match_parent"
+                android:layout_height="100dp"
+                app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
+                android:background="@color/fui_transparent"
+                android:theme="@style/AppTheme.AppBarOverlay"
+                app:titleTextColor="@android:color/white"
+                app:subtitleTextColor="@android:color/white"/>
+        </android.support.design.widget.AppBarLayout>
+
+        <FrameLayout
+            android:id="@+id/profileInfoFrameLayout"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_alignParentStart="true"
+            android:layout_below="@+id/profileAppBarLayout"
+            android:background="@color/colorSecondary"
+            android:layout_alignParentLeft="true"
+            android:layout_alignBottom="@+id/userIdProfileTextView">
+        </FrameLayout>
+
+        <TextView
+            android:id="@+id/userNameProfileTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/profileAppBarLayout"
+            android:layout_marginLeft="@dimen/default_margin"
+            android:layout_toEndOf="@+id/profileCircleImageView"
+            android:layout_toRightOf="@+id/profileCircleImageView"
+            android:text="Meu Nome"
+            android:textColor="#fff"
+            android:textSize="18sp" />
+
+        <TextView
+            android:id="@+id/userEmailProfileTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/userNameProfileTextView"
+            android:layout_marginLeft="@dimen/default_margin"
+            android:layout_toEndOf="@+id/profileCircleImageView"
+            android:text="e-mail"
+            android:textColor="#fff"
+            android:textSize="12sp"
+            android:layout_toRightOf="@+id/profileCircleImageView" />
+
+        <TextView
+            android:id="@+id/userIdProfileTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/userEmailProfileTextView"
+            android:layout_marginLeft="@dimen/default_margin"
+            android:layout_toEndOf="@+id/profileCircleImageView"
+            android:text="id"
+            android:textColor="#fff"
+            android:textSize="10sp"
+            android:layout_toRightOf="@+id/profileCircleImageView" />
+
+        <de.hdodenhof.circleimageview.CircleImageView xmlns:app="http://schemas.android.com/apk/res-auto"
+            android:id="@+id/profileCircleImageView"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentTop="true"
+            android:layout_marginStart="@dimen/activity_horizontal_margin"
+            android:layout_marginTop="@dimen/activity_horizontal_margin"
+            android:layout_marginLeft="@dimen/activity_horizontal_margin"
+            android:src="@drawable/profile_person"
+            app:civ_border_color="#000000"
+            app:civ_border_width="1dp" />
+
+        <ListView
+            android:id="@+id/friendsListView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_alignParentStart="true"
+            android:layout_below="@+id/profileInfoFrameLayout"
+            android:background="@android:color/white"
+            android:layout_alignParentLeft="true" />
+
+    </RelativeLayout>
+</FrameLayout>

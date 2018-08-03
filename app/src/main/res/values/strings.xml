@@ -1,0 +1,93 @@
+<resources>
+    <string name="app_name">Lab. de Física</string>
+
+    <string name="sign_out">Sair</string>
+    <string name="help_report">Como Fazer Seu Relatório</string>
+    <string name="physics1">Física I</string>
+    <string name="physics2">Física II</string>
+    <string name="physics3">Física III</string>
+    <string name="physics4">Física IV</string>
+    <string name="build_report">Construir Relatório</string>
+    <string name="title_activity_report_list">Relatórios</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="title_activity_report_maker">ReportMaker</string>
+    <string name="title_activity_report_constructor">ReportConstructor</string>
+    <string name="action_settings">Settings</string>
+    <string name="title_activity_main_choices">MainChoicesActivity</string>
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+    <string name="nav_header_title">Android Studio</string>
+    <string name="nav_header_subtitle">android.studio@android.com</string>
+    <string name="nav_header_desc">Navigation header</string>
+    <string name="title_activity_main">MainActivity</string>
+    <string name="title_activity_contatos">Contatos</string>
+    <string name="title_activity_report_editor">ReportEditor</string>
+    <string name="title_activity_attachment_picker">AttachmentPicker</string>
+
+    <string-array name="attachments_types">
+        <item>Texto</item>
+        <item>Imagem</item>
+        <item>Tabela</item>
+        <item>Gráfico de Linhas</item>
+        <item>Gráfico de Barras</item>
+        <item>Gráfico de Pizza</item>
+    </string-array>
+
+    <string name="text_editor">Editor de Texto</string>
+    <string name="camera_editor">Câmera</string>
+    <string name="gallery_editor">Galeria</string>
+    <string name="table_editor">Editor de Tabela</string>
+    <string name="bar_chart_editor">Editor de Gráfico de Barras</string>
+    <string name="line_chart_editor">Editor de Gráfico de Linhas</string>
+    <string name="pie_chart_editor">Editor de Gráfico Pizza</string>
+
+    <string name="hint_text">Digite seu texto aqui</string>
+    <string name="sure_to_attach">Tem certeza que deseja anexar conteúdo ao seu relatório?</string>
+    <string name="confirmation">Confirmar</string>
+    <string name="attach">Anexar</string>
+    <string name="cancel">Cancelar</string>
+    <string name="create">Criar</string>
+    <string name="type_something">Digite algum texto</string>
+    <string name="max_limit">Limite maximo atingido</string>
+    <string name="min_limit">Limite minimo atingido</string>
+    <string name="chart_updated">Gráfico atualizado</string>
+    <string name="row_label">Grupo</string>
+    <string name="column_label">Rótulo</string>
+    <string name="successfully_attached">Anexado com sucesso</string>
+    <string name="attachment_failure">Falha ao anexar</string>
+    <string name="deleted">Excluído</string>
+    <string name="delete">Excluir</string>
+    <string name="canceled">Cancelado</string>
+    <string name="sure_to_delete_content">Tem certeza que deseja excluir conteúdo?</string>
+    <string name="sure_to_delete_report">Tem certeza que deseja excluir relatório?</string>
+    <string name="sure_to_exit">Tem certeza que sair?</string>
+    <string name="upload_error">Erro ao eviar arquivo</string>
+    <string name="delete_error">Erro ao excluir</string>
+    <string name="permissions_warning">Para continuar você precisa fornecer as permissões necessárias</string>
+    <string name="new_report">Novo relatório</string>
+    <string name="report">Relatório</string>
+    <string name="new_contact">Novo contato</string>
+    <string name="new_experiment_hint">Título do seu experimento</string>
+    <string name="empty_screen_tip">Clique no botão para adicionar algum conteúdo</string>
+    <string name="reports_in_progress">Relatórios em andamento</string>
+    <string name="available_attachments">Anexos disponíveis</string>
+    <string name="generate_report">Gerar PDF</string>
+    <string name="delete_report">Excluir relatório</string>
+    <string name="exit_editor">Sair do editor</string>
+    <string name="exit">Sair</string>
+    <string name="look_for">Procurar</string>
+    <string name="exit_app">Sair do app</string>
+    <string name="plese_wait">Por favor aguarde</string>
+    <string name="generating_pdf">Gerando PDF...</string>
+    <string name="uploading_attachment">Enviando anexo...</string>
+    <string name="my_info">Meu perfil</string>
+    <string name="title_activity_home">Home</string>
+    <string name="title_home">Home</string>
+    <string name="title_dashboard">Dashboard</string>
+    <string name="title_notifications">Notifications</string>
+    <string name="profile">Perfil</string>
+    <string name="laboratory">Laboratório</string>
+
+</resources>

@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "637002569554",
+    "firebase_url": "https://lab-de-fisica.firebaseio.com",
+    "project_id": "lab-de-fisica",
+    "storage_bucket": "lab-de-fisica.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:637002569554:android:6bcde4d89a591a83",
+        "android_client_info": {
+          "package_name": "br.thayllo.labdefisica"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "637002569554-k9echg58gkp3hi5acbjnmmekf1hcpau2.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "br.thayllo.labdefisica",
+            "certificate_hash": "2c022ccda9351d2bee1757f01e09df25506e3f1b"
+          }
+        },
+        {
+          "client_id": "637002569554-q9jlgd6r5gjtdovtlg6qjpsoedshsfn4.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCeRYX_DeQ4dDB1jYYvBiUUR1643T8wBSM"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "637002569554-q9jlgd6r5gjtdovtlg6qjpsoedshsfn4.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
