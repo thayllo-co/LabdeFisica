@@ -35,6 +35,9 @@
         <item>Gráfico de Pizza</item>
     </string-array>
 
+    <string name="facebook_application_id" translatable="false">265444810717462</string>
+    <string name="facebook_login_protocol_scheme" translatable="false">fb265444810717462</string>
+
     <string name="text_editor">Editor de Texto</string>
     <string name="camera_editor">Câmera</string>
     <string name="gallery_editor">Galeria</string>
@@ -49,6 +52,7 @@
     <string name="attach">Anexar</string>
     <string name="cancel">Cancelar</string>
     <string name="create">Criar</string>
+    <string name="rename">Renomear</string>
     <string name="type_something">Digite algum texto</string>
     <string name="max_limit">Limite maximo atingido</string>
     <string name="min_limit">Limite minimo atingido</string>
@@ -58,6 +62,7 @@
     <string name="successfully_attached">Anexado com sucesso</string>
     <string name="attachment_failure">Falha ao anexar</string>
     <string name="deleted">Excluído</string>
+    <string name="renamed">Renomeado com sucesso</string>
     <string name="delete">Excluir</string>
     <string name="canceled">Cancelado</string>
     <string name="sure_to_delete_content">Tem certeza que deseja excluir conteúdo?</string>
@@ -89,5 +94,7 @@
     <string name="title_notifications">Notifications</string>
     <string name="profile">Perfil</string>
     <string name="laboratory">Laboratório</string>
+    <string name="add_friend">Add amigo</string>
+    <string name="rename_report">Renomear relatório</string>
 
 </resources>

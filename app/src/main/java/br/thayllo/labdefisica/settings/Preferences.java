@@ -17,6 +17,7 @@ public class Preferences{
     private final String KEY_USER_ID = "userId";
     private final String KEY_USER_NAME= "userName";
     private final String KEY_USER_EMAIL = "userEmail";
+    private final String KEY_USER_PHOTOURL = "userPhotoUrl";
     private final String KEY_REPORT_ID = "reportId";
     private final String KEY_REPORT_TITLE = "reportTitle";
     private final String KEY_REPORT_SUBTITLE = "reportSubtitle";
@@ -34,6 +35,7 @@ public class Preferences{
         editor.putString(KEY_USER_ID, user.getId());
         editor.putString(KEY_USER_NAME, user.getName());
         editor.putString(KEY_USER_EMAIL, user.getEmail());
+        editor.putString(KEY_USER_PHOTOURL, user.getPhotoUrl());
         editor.commit();
 
     }
@@ -54,6 +56,7 @@ public class Preferences{
         user.setEmail( preferences.getString(KEY_USER_EMAIL, null) );
         user.setId( preferences.getString(KEY_USER_ID, null) );
         user.setName( preferences.getString(KEY_USER_NAME, null) );
+        user.setPhotoUrl( preferences.getString(KEY_USER_PHOTOURL, null) );
         return user;
     }
     public Report getReport(){

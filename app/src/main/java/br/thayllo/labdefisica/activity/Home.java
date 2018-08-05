@@ -42,8 +42,8 @@ public class Home extends AppCompatActivity implements BottomNavigationView.OnNa
     // Choose authentication providers
     List<AuthUI.IdpConfig> providers = Arrays.asList(
             new AuthUI.IdpConfig.EmailBuilder().build(),
-            /*new AuthUI.IdpConfig.PhoneBuilder().build(),*/
-            new AuthUI.IdpConfig.GoogleBuilder().build());
+            new AuthUI.IdpConfig.GoogleBuilder().build(),
+            new AuthUI.IdpConfig.FacebookBuilder().build());
 
     private FirebaseAuth mFirebaseAuth;
     private Preferences preferences;
@@ -71,11 +71,10 @@ public class Home extends AppCompatActivity implements BottomNavigationView.OnNa
             @Override
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
                 FirebaseUser firebaseUser = firebaseAuth.getCurrentUser();
+
                 if( firebaseUser != null){
-                    //user is signed in
-                    Toast.makeText(Home.this, "CONECTADO", Toast.LENGTH_SHORT).show();
-                    bottomNavigationView.setSelectedItemId(R.id.navigation_laboratory);
-                    loadFragment(new LaboratoryFragment());
+                    //user is signed in;
+
                 } else {
                     //user is signed out
                     Toast.makeText(Home.this, "DESCONECTADO", Toast.LENGTH_SHORT).show();

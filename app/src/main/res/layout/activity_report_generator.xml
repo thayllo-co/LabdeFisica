@@ -5,9 +5,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".activity.ReportGenerator"
-    android:layout_marginLeft="@dimen/default_margin"
-    android:layout_marginRight="@dimen/default_margin">
+    tools:context=".activity.ReportGenerator">
 
     <ListView
         android:id="@+id/pdfListView"
@@ -16,6 +14,7 @@
         android:layout_alignParentStart="true"
         android:layout_alignParentTop="true"
         android:layout_alignParentLeft="true"
+        android:padding="@dimen/default_margin"
         android:visibility="visible"/>
 
     <android.support.design.widget.FloatingActionButton
@@ -27,4 +26,5 @@
         android:layout_alignParentRight="true"
         android:src="@drawable/ic_upload"
         android:layout_alignParentEnd="true" />
+
 </RelativeLayout>

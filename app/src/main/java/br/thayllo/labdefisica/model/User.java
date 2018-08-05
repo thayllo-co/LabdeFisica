@@ -6,7 +6,7 @@ public class User {
     //private String ra;
     private String name;
     private String email;
-    //private String senha;
+    private String photoUrl;
 
     public User() {}
 
@@ -28,11 +28,18 @@ public class User {
     public void setEmail(String email) {
         this.email = email;
     }
+    public String getPhotoUrl() {
+        return photoUrl;
+    }
+    public void setPhotoUrl(String photoUrl) {
+        this.photoUrl = photoUrl;
+    }
 
     @Override
     public String toString() {
         return "id=" + id +
                 "\nname=" + name +
-                "\nemail=" + email;
+                "\nemail=" + email +
+                "\nurl=" + photoUrl;
     }
 }

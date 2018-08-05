@@ -3,10 +3,12 @@ package br.thayllo.labdefisica.fragment;
 
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -43,6 +45,8 @@ import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.squareup.picasso.Callback;
+import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -50,11 +54,13 @@ import java.util.Objects;
 
 import br.thayllo.labdefisica.R;
 import br.thayllo.labdefisica.activity.AttachmentPicker;
+import br.thayllo.labdefisica.activity.Home;
 import br.thayllo.labdefisica.adapter.ContactAdapter;
 import br.thayllo.labdefisica.helper.Base64Custom;
 import br.thayllo.labdefisica.model.User;
 import br.thayllo.labdefisica.settings.FirebasePreferences;
 import br.thayllo.labdefisica.settings.Preferences;
+import de.hdodenhof.circleimageview.CircleImageView;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -71,6 +77,7 @@ public class ProfileFragment extends Fragment {
     private ArrayList<User> friendsList;
     private Toolbar profileToolbar;
     private TextView userIdProfileTextView;
+    private CircleImageView profileCircleImageView;
     private CollectionReference usersFirebaseFirestore = FirebasePreferences.getFirebaseFirestore()
             .collection("users");
 
@@ -91,6 +98,7 @@ public class ProfileFragment extends Fragment {
         userIdProfileTextView = view.findViewById(R.id.userIdProfileTextView);
         friendsListView = view.findViewById(R.id.friendsListView);
         profileToolbar = view.findViewById(R.id.profileToolbar);
+        profileCircleImageView = view.findViewById(R.id.profileCircleImageView);
 
         ((AppCompatActivity)getActivity()).setSupportActionBar(profileToolbar);
         profileToolbar.setTitle("");
@@ -101,6 +109,15 @@ public class ProfileFragment extends Fragment {
         userNameTextView.setText(currentUser.getName());
         userEmailTextView.setText(currentUser.getEmail());
         userIdProfileTextView.setText(currentUser.getId());
+
+        Uri photoUrl = FirebasePreferences.getFirebaseAuth().getCurrentUser().getPhotoUrl();
+        if(photoUrl != null){
+            Picasso.get()
+                    .load(photoUrl)
+                    .into((ImageView) profileCircleImageView);
+        } else {
+            profileCircleImageView.setImageDrawable(ContextCompat.getDrawable(getContext(),R.drawable.profile_person));
+        }
 
         myContactsReference = FirebasePreferences.getFirebaseFirestore()
                 .collection("users").document(currentUser.getId()).collection("contacts");
@@ -127,6 +144,13 @@ public class ProfileFragment extends Fragment {
                         }
                     }
                 });
+
+        friendsListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                popUpProfile(friendsList.get(position));
+            }
+        });
 
         return view;
     }
@@ -169,6 +193,7 @@ public class ProfileFragment extends Fragment {
                                                 // user is now signed out
                                                 Toast.makeText(getActivity(), "Desconectado", Toast.LENGTH_SHORT).show();
                                                 preferences.limpar();
+                                                //getActivity().finish();
                                             }
                                         });
                             }
@@ -284,6 +309,10 @@ public class ProfileFragment extends Fragment {
         });
         if(user.getId() == currentUser.getId())
             add.setVisibility(View.GONE);
+        for(User u :friendsList){
+            if(user.getId().equals(u.getId()))
+                add.setVisibility(View.GONE);
+        }
 
         AlertDialog.Builder alert = new AlertDialog.Builder(getActivity());
         alert.setView(alertLayout);

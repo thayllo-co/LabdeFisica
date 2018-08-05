@@ -15,6 +15,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
@@ -24,6 +25,7 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.storage.OnProgressListener;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
@@ -31,10 +33,12 @@ import com.theartofdev.edmodo.cropper.CropImage;
 import com.theartofdev.edmodo.cropper.CropImageView;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 
 import br.thayllo.labdefisica.R;
 import br.thayllo.labdefisica.adapter.TabAdapter;
+import br.thayllo.labdefisica.fragment.ReportFragment;
 import br.thayllo.labdefisica.model.Attachment;
 import br.thayllo.labdefisica.model.AttachmentType;
 import br.thayllo.labdefisica.model.Report;
@@ -67,6 +71,7 @@ public class ReportEditor extends AppCompatActivity implements OnSuccessListener
     private StorageReference mReportPicsStorageReference;
     private CollectionReference currentTabFirebaseFirestore;
     private DocumentReference attachmentReference;
+    private DocumentReference currentReportReference;
 
 
     @Override
@@ -77,6 +82,19 @@ public class ReportEditor extends AppCompatActivity implements OnSuccessListener
         // recupera o id e titulo do relatorio e
         preferences = new Preferences(ReportEditor.this);
         currentReport = preferences.getReport();
+
+        currentReportReference = FirebasePreferences.getFirebaseFirestore()
+                .collection("reports").document(currentReport.getReportId());
+        currentReportReference.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful()) {
+                    currentReport = task.getResult().toObject(Report.class);
+                } else {
+                    Toast.makeText(ReportEditor.this,  task.getException().toString() , Toast.LENGTH_LONG).show();
+                }
+            }
+        });
 
         toolbar = findViewById(R.id.toolbarReportEditor);
         slidingTabLayout = findViewById(R.id.slidingTabReport);
@@ -137,7 +155,6 @@ public class ReportEditor extends AppCompatActivity implements OnSuccessListener
                 Intent intent = new Intent( ReportEditor.this, ReportGenerator.class);
                 startActivity(intent);
                 return true;
-
             default:
                 return super.onOptionsItemSelected(item);
         }
@@ -278,6 +295,7 @@ public class ReportEditor extends AppCompatActivity implements OnSuccessListener
         AlertDialog choicesDialog = choicesBuilder.create();
         choicesDialog.show();
     }
+
 
 
 }

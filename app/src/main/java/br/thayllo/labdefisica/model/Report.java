@@ -1,11 +1,14 @@
 package br.thayllo.labdefisica.model;
 
+import java.util.ArrayList;
+
 public class Report {
 
     private String reportId;
     private String reportTitle;
     private String reportSubtitle;
     private String reportAddedAt;
+    private ArrayList<User> reportMembers;
 
     public Report() {
 
@@ -48,6 +51,14 @@ public class Report {
 
     public void setReportAddedAt(String reportAddedAt) {
         this.reportAddedAt = reportAddedAt;
+    }
+
+    public ArrayList<User> getReportMembers() {
+        return reportMembers;
+    }
+
+    public void setReportMembers(ArrayList<User> reportMembers) {
+        this.reportMembers = reportMembers;
     }
 
     @Override

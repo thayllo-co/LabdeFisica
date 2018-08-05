@@ -53,7 +53,7 @@ dependencies {
     implementation 'com.firebaseui:firebase-ui-auth:3.3.1'
 
     // Facebook login
-    //implementation 'com.facebook.android:facebook-android-sdk:4.32.0'
+    implementation 'com.facebook.android:facebook-android-sdk:[4,5)'
 
     // Graficos
     implementation 'com.github.PhilJay:MPAndroidChart:v3.0.3'
@@ -66,6 +66,9 @@ dependencies {
 
     //Imagem circular
     implementation 'de.hdodenhof:circleimageview:2.2.0'
+
+    //ver pdf
+    implementation 'com.github.barteksc:android-pdf-viewer:2.8.2'
 }
 
 apply plugin: 'com.google.gms.google-services'

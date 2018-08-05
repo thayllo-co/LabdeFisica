@@ -7,8 +7,10 @@ import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Environment;
+import android.view.View;
 import android.widget.Toast;
 
+import com.github.barteksc.pdfviewer.PDFView;
 import com.itextpdf.text.BadElementException;
 import com.itextpdf.text.Chunk;
 import com.itextpdf.text.Document;
@@ -38,6 +40,7 @@ import br.thayllo.labdefisica.R;
 import br.thayllo.labdefisica.activity.ReportGenerator;
 import br.thayllo.labdefisica.model.Attachment;
 import br.thayllo.labdefisica.model.Report;
+import br.thayllo.labdefisica.model.User;
 
 public class GeneratePdfTask extends AsyncTask<ArrayList<Attachment>, Integer, Uri> {
 
@@ -45,6 +48,7 @@ public class GeneratePdfTask extends AsyncTask<ArrayList<Attachment>, Integer, U
     private ProgressDialog progressDialog;
     private Report currentReport;
     private Context context;
+    private PDFView pdfView;
 
     public GeneratePdfTask(Context context, Report currentReport) {
         super();
@@ -88,28 +92,34 @@ public class GeneratePdfTask extends AsyncTask<ArrayList<Attachment>, Integer, U
 
             document.open();
 
-            Paragraph p1 = new Paragraph();
-            Paragraph p2 = new Paragraph();
-            Paragraph p3 = new Paragraph();
-            Paragraph p4 = new Paragraph();
-            p1.setAlignment(Element.ALIGN_CENTER);
-            p2.setAlignment(Element.ALIGN_CENTER);
-            p3.setAlignment(Element.ALIGN_CENTER);
-            p4.setAlignment(Element.ALIGN_CENTER);
-            p1.setSpacingAfter(20);
-            p1.setSpacingBefore(20);
-            p2.setSpacingAfter(20);
-            p2.setSpacingBefore(20);
-            p3.setSpacingAfter(300);
-            p3.setSpacingBefore(300);
-            p1.add(new Chunk("Laboratório de Física", title));
-            p2.add(new Chunk(currentReport.getreportSubtitle(), title));
-            p3.add(new Chunk(currentReport.getreportTitle().toUpperCase(), title));
-            p4.add(new Chunk("Araras-SP", title));
-            document.add(p1);
-            document.add(p2);
-            document.add(p3);
-            document.add(p4);
+            Paragraph header = new Paragraph();
+            header.setAlignment(Element.ALIGN_CENTER);
+            header.setSpacingAfter(20);
+            header.setSpacingBefore(20);
+            header.add(new Chunk("Laboratório de Física", title));
+            document.add(header);
+
+            for (User u : currentReport.getReportMembers()) {
+                Paragraph name = new Paragraph();
+                name.setAlignment(Element.ALIGN_CENTER);
+                name.add(new Chunk(u.getName() + " - " + u.getId(), title));
+                name.setSpacingAfter(5);
+                name.setSpacingBefore(5);
+                document.add(name);
+
+            }
+
+            Paragraph reportTitle = new Paragraph();
+            reportTitle.setAlignment(Element.ALIGN_CENTER);
+            reportTitle.setSpacingAfter(270);
+            reportTitle.setSpacingBefore(270);
+            reportTitle.add(new Chunk(currentReport.getreportTitle().toUpperCase(), title));
+            document.add(reportTitle);
+
+            Paragraph date = new Paragraph();
+            date.setAlignment(Element.ALIGN_CENTER);
+            date.add(new Chunk("Araras-SP", title));
+            document.add(date);
             document.newPage();
 
             for(int i = 0; i < pdfContent.size() ; i++){
@@ -177,10 +187,11 @@ public class GeneratePdfTask extends AsyncTask<ArrayList<Attachment>, Integer, U
     @Override
     protected void onPostExecute(Uri uri) {
         super.onPostExecute(uri);
-
         progressDialog.dismiss();
-        Toast.makeText(context,"PDF GERADO COM SUCESSO",Toast.LENGTH_SHORT).show();
-
+        /*pdfView.fromUri(uri)
+                .spacing(5)
+                .load();
+        pdfView.setVisibility(View.VISIBLE);*/
         PackageManager packageManager = context.getPackageManager();
         Intent testIntent = new Intent(Intent.ACTION_VIEW);
         testIntent.setType("application/pdf");
@@ -191,7 +202,7 @@ public class GeneratePdfTask extends AsyncTask<ArrayList<Attachment>, Integer, U
             intent.setDataAndType(uri, "application/pdf");
             context.startActivity(intent);
         }else{
-            Toast.makeText(context,"PDF salvo em: " + uri,Toast.LENGTH_LONG).show();
+            Toast.makeText(context,"PDF salvo em: " + uri.getPath() ,Toast.LENGTH_LONG).show();
         }
     }
 }

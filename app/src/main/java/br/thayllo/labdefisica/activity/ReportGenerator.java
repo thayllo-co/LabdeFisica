@@ -2,6 +2,8 @@ package br.thayllo.labdefisica.activity;
 
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
+import android.net.Uri;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AlertDialog;
@@ -12,7 +14,11 @@ import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.github.barteksc.pdfviewer.PDFView;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -25,6 +31,7 @@ import java.io.File;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 import br.thayllo.labdefisica.R;
 import br.thayllo.labdefisica.adapter.AttachmentAdapter;
@@ -46,7 +53,7 @@ public class ReportGenerator extends AppCompatActivity {
             "CONCLUSÃO",
             "BIBLIOGRAFIA"};
 
-    private ListView listView;
+    private ListView pdfListView;
     private ArrayAdapter<Attachment> attachmentsAdapter;
     private ArrayList<Attachment> pdfContent;
     private Report currentReport;
@@ -55,24 +62,38 @@ public class ReportGenerator extends AppCompatActivity {
     private CollectionReference tabContentCollectionReference;
     private DocumentReference tabsDocumentReference;
     private Preferences preferences;
+    private DocumentReference currentReportReference;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_report_generator);
 
+        pdfListView = findViewById(R.id.pdfListView);
+        generatepdfFAB = findViewById(R.id.generatepdfFAB);
+
         // recupera o id e titulo do relatorio e
         preferences = new Preferences(ReportGenerator.this);
         currentReport = preferences.getReport();
 
-        listView = findViewById(R.id.pdfListView);
-        generatepdfFAB = findViewById(R.id.generatepdfFAB);
+        currentReportReference = FirebasePreferences.getFirebaseFirestore()
+                .collection("reports").document(currentReport.getReportId());
+        currentReportReference.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful()) {
+                    currentReport = task.getResult().toObject(Report.class);
+                } else {
+                    Toast.makeText(ReportGenerator.this,  task.getException().toString() , Toast.LENGTH_LONG).show();
+                }
+            }
+        });
 
         getSupportActionBar().setTitle("Gerador de PDF");
 
         pdfContent = new ArrayList<>();
         attachmentsAdapter = new AttachmentAdapter(ReportGenerator.this, pdfContent );
-        listView.setAdapter(attachmentsAdapter);
+        pdfListView.setAdapter(attachmentsAdapter);
 
         tabsDocumentReference = FirebasePreferences.getFirebaseFirestore()
                 .collection("reports").document(currentReport.getReportId());
@@ -123,5 +144,4 @@ public class ReportGenerator extends AppCompatActivity {
             }
         });
     }
-
 }

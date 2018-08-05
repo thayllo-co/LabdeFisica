@@ -33,7 +33,7 @@
             android:screenOrientation="portrait">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="br.thayllo.labdefisica.activity.MainActivity" />
+                android:value="br.thayllo.labdefisica.activity.Home" />
         </activity>
         <activity
             android:name=".activity.ReportEditor"

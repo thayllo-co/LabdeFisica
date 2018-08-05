@@ -17,6 +17,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -41,7 +42,6 @@ import java.util.List;
 
 import br.thayllo.labdefisica.R;
 import br.thayllo.labdefisica.activity.ReportEditor;
-import br.thayllo.labdefisica.activity.ReportList;
 import br.thayllo.labdefisica.adapter.ReportAdapter;
 import br.thayllo.labdefisica.model.Report;
 import br.thayllo.labdefisica.model.User;
@@ -62,6 +62,7 @@ public class ReportFragment extends Fragment {
     private Preferences preferences;
     private FloatingActionButton addReportFAB;
     private TextView emptyReportListTextView;
+    private Report selectedReport;
 
     private CollectionReference reportsReference = FirebasePreferences.getFirebaseFirestore()
             .collection("reports");
@@ -69,11 +70,16 @@ public class ReportFragment extends Fragment {
             .collection("users");
     private CollectionReference myContactsReference;
     private CollectionReference myReportsReference;
+    private DocumentReference selectedReportReference;
 
     public ReportFragment() {
         // Required empty public constructor
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -107,19 +113,35 @@ public class ReportFragment extends Fragment {
                                     Log.w(TAG, "Listen failed.", e);
                                     return;
                                 }
+                                Report report;
                                 for(DocumentChange doc : queryDocumentSnapshots.getDocumentChanges()){
-                                    if(doc.getType() == DocumentChange.Type.ADDED){
-                                        Log.w(TAG, doc.getDocument().toObject(Report.class).toString() );
-                                        reportList.add(doc.getDocument().toObject(Report.class));
-                                        reportsAdapter.notifyDataSetChanged();
-                                    }else if(doc.getType() == DocumentChange.Type.REMOVED){
-                                        //reportsAdapter.notifyDataSetChanged();
+                                    switch (doc.getType()) {
+                                        case ADDED:
+                                            reportList.add(doc.getDocument().toObject(Report.class));
+                                            break;
+                                        case MODIFIED:
+                                            report = doc.getDocument().toObject(Report.class);
+                                            for (Report r : reportList){
+                                                if(r.getReportId().equals(report.getReportId())){
+                                                    reportList.get(reportList.indexOf(r)).setReportTitle(report.getreportTitle());
+                                                }
+                                            }
+                                            break;
+                                        case REMOVED:
+                                            report = doc.getDocument().toObject(Report.class);
+                                            for (Report r : reportList){
+                                                if(r.getReportId().equals(report.getReportId())){
+                                                    reportList.remove(r);
+                                                }
+                                            }
+                                            break;
                                     }
-                                    if(reportList.size() < 1 )
-                                        emptyReportListTextView.setVisibility(View.VISIBLE);
-                                    else
-                                        emptyReportListTextView.setVisibility(View.GONE);
                                 }
+                                reportsAdapter.notifyDataSetChanged();
+                                if(reportList.size() < 1 )
+                                    emptyReportListTextView.setVisibility(View.VISIBLE);
+                                else
+                                    emptyReportListTextView.setVisibility(View.GONE);
                             }
                         }
                 );
@@ -133,82 +155,73 @@ public class ReportFragment extends Fragment {
 
         repostsListView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
-            public boolean onItemLongClick(AdapterView<?> parent, View view, final int position, long id) {
-                deleteReport(position);
+            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+
+                selectedReport = reportList.get(position);
+                selectedReportReference = FirebasePreferences.getFirebaseFirestore()
+                        .collection("reports").document(selectedReport.getReportId());
+
+                final CharSequence[] reportTypes = {"Renomear relatório", "Excluir relatório"};
+                new AlertDialog.Builder(getActivity())
+                        .setTitle("Opções")
+                        .setItems(reportTypes,
+                                new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        switch (which) {
+                                            case 0:
+                                                updateReportTitle();
+                                                break;
+                                            case 1:
+                                                deleteReport();
+                                                break;
+                                        }
+                                    }
+                                })
+                        .create()
+                        .show();
                 return true;
             }
         });
 
         addReportFAB.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View view) { reportTypeChooser();
+            public void onClick(View view) { setReportTitle();
             }
         });
         return view;
     }
 
-    private void deleteReport(final int position) {
-        // Create a reference to remove of the database
-        final DocumentReference report = FirebasePreferences.getFirebaseFirestore()
-                .collection("reports").document(reportList.get(position).getReportId());
-        // Create a reference to the file to delete
-        final StorageReference storageReference = FirebasePreferences.getFirebaseStorage()
-                .child("reports_photos").child(reportList.get(position).getReportId());
-
-        // AlertDialog para confirmar a exclusão
+    private void setReportTitle() {
+        final EditText editText = new EditText(getActivity());
         new AlertDialog.Builder(getActivity())
-                .setTitle(R.string.delete)
-                .setIcon( R.drawable.ic_warning)
-                .setMessage(R.string.sure_to_delete_report)
-                .setPositiveButton(R.string.delete, new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int id) {
-                        report.delete()
-                                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                    @Override
-                                    public void onSuccess(Void aVoid) {
-                                        // DESENVOLVER METODO PARA REMOVER AS IMAGENS DO FIREBASE STORAGE CORRESPONDENTE AO RELATORIO DELETADO
-                                                /*storageReference.delete()
-                                                        .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                                            @Override
-                                                            public void onSuccess(Void aVoid) {
-                                                                Toast.makeText(ReportEditor.this, "DEU CERTO", Toast.LENGTH_LONG).show();
-                                                            }
-                                                        })
-                                                        .addOnFailureListener(new OnFailureListener() {
-                                                            @Override
-                                                            public void onFailure(@NonNull Exception e) {
-                                                                Toast.makeText(ReportEditor.this, "ERRO: " + e.toString(), Toast.LENGTH_LONG).show();
-                                                            }
-                                                        });*/
-                                        reportList.remove(position);
-                                        reportsAdapter.notifyDataSetChanged();
-                                        Toast.makeText(getActivity(), R.string.deleted, Toast.LENGTH_LONG).show();
-                                    }
-                                })
-                                .addOnFailureListener(new OnFailureListener() {
-                                    @Override
-                                    public void onFailure(@NonNull Exception e) {
-                                        Toast.makeText(getActivity(),R.string.delete_error, Toast.LENGTH_SHORT).show();
-                                    }
-                                });
+                .setTitle(R.string.new_report)
+                .setMessage(R.string.new_experiment_hint)
+                .setCancelable(false)
+                .setView( editText )
+                .setPositiveButton(R.string.create, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        // Pega o email digitado pelo usuario
+                        final String reportTitle = editText.getText().toString();
+                        //Valida se o e-mail foi digitado
+                        if( reportTitle.isEmpty() ){
+                            Toast.makeText(getActivity(), R.string.type_something, Toast.LENGTH_LONG).show();
+                        }else{
+                            reportTypeChooser(reportTitle);
+                        }
                     }
                 })
                 .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int id) {
-                        // User cancelled the dialog
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
                     }
                 })
                 .create()
                 .show();
     }
 
-    private void openReport(Report report){
-        Intent intent = new Intent( getActivity(), ReportEditor.class);
-        preferences.saveReport(report);
-        startActivity(intent);
-    }
-
-    private void reportTypeChooser(){
+    private void reportTypeChooser(final String reportTitle){
 
         final CharSequence[] reportTypes = {"Individual", "Grupo"};
         new AlertDialog.Builder(getActivity())
@@ -219,10 +232,10 @@ public class ReportFragment extends Fragment {
                             public void onClick(DialogInterface dialog, int which) {
                                 switch (which) {
                                     case 0:
-                                        addIndividualReport();
+                                        addIndividualReport(reportTitle);
                                         break;
                                     case 1:
-                                        addGroupReport();
+                                        addGroupReport(reportTitle);
                                         break;
                                 }
                             }
@@ -231,64 +244,39 @@ public class ReportFragment extends Fragment {
                 .show();
     }
 
-    private void addIndividualReport() {
+    private void addIndividualReport(String reportTitle) {
 
-        AlertDialog.Builder alertDialog = new AlertDialog.Builder(getActivity());
-        //Configurações do Dialog
-        alertDialog.setTitle(R.string.new_report);
-        alertDialog.setMessage(R.string.new_experiment_hint);
-        alertDialog.setCancelable(false);
-        // Configura o EditText para receber o email do novo contato
-        final EditText editText = new EditText(getActivity());
-        alertDialog.setView( editText );
-        //Configura botões
-        alertDialog.setPositiveButton(R.string.create, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                // Pega o email digitado pelo usuario
-                final String reportTitle = editText.getText().toString();
-                //Valida se o e-mail foi digitado
-                if( reportTitle.isEmpty() ){
-                    Toast.makeText(getActivity(), R.string.type_something, Toast.LENGTH_LONG).show();
-                }else{
-                    DocumentReference documentReference = reportsReference.document();
+        Calendar calendar = Calendar.getInstance();
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd-HH:mm:ss.SSS");
+        String stringDate = dateFormat.format(calendar.getTime());
 
-                    Calendar calendar = Calendar.getInstance();
-                    SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd-HH:mm:ss.SSS");
-                    String stringDate = dateFormat.format(calendar.getTime());
-                    newReport = new Report(reportTitle, currentUser.getName(), documentReference.getId(), stringDate);
+        final ArrayList<User> myArray = new ArrayList<>();
+        myArray.add(currentUser);
 
-                    documentReference.set(newReport)
-                            .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                @Override
-                                public void onSuccess(Void aVoid) {
-                                    DocumentReference myReportReference = usersReference.document(currentUser.getId())
-                                            .collection("reports").document(newReport.getReportId());
-                                    myReportReference.set(newReport)
-                                            .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                                @Override
-                                                public void onSuccess(Void aVoid) {
-                                                    openReport(newReport);
-                                                }
-                                            });
-                                }
-                            });
-                }
-            }
-        });
-        alertDialog.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-            }
-        });
-        alertDialog.create();
-        alertDialog.show();
+        DocumentReference documentReference = reportsReference.document();
+        newReport = new Report(reportTitle, currentUser.getName(), documentReference.getId(), stringDate);
+        newReport.setReportMembers(myArray);
+
+        final DocumentReference myReportReference = usersReference.document(currentUser.getId())
+                .collection("reports").document(newReport.getReportId());
+
+        documentReference.set(newReport)
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        myReportReference.set(newReport)
+                                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                    @Override
+                                    public void onSuccess(Void aVoid) {
+                                        openReport(newReport);
+                                    }
+                                });
+                    }
+                });
     }
 
-    private void addGroupReport(){
-
+    private void addGroupReport(final String reportTitle){
         final List<User> friendsList = new ArrayList<>();
-
         myContactsReference
                 .orderBy("name", Query.Direction.ASCENDING)
                 .addSnapshotListener(getActivity(), new EventListener<QuerySnapshot>() {
@@ -304,14 +292,13 @@ public class ReportFragment extends Fragment {
                             friendsList.add(u);
                             friendsDialogList.add(u.getName());
                         }
-                        pickFriendsDialog(friendsDialogList.toArray(new CharSequence[friendsDialogList.size()]),
+                        pickFriendsDialog(reportTitle, friendsDialogList.toArray(new CharSequence[friendsDialogList.size()]),
                                 friendsList);
                     }
                 });
-
     }
 
-    private void pickFriendsDialog(CharSequence[] charSequence, final List<User> users){
+    private void pickFriendsDialog(final String reportTitle, CharSequence[] charSequence, final List<User> users){
         final ArrayList<Integer> seletedItems = new ArrayList();
         new AlertDialog.Builder(getActivity())
                 .setTitle("Selecione Amigos")
@@ -335,35 +322,49 @@ public class ReportFragment extends Fragment {
                                 String stringDate = dateFormat.format(calendar.getTime());
 
                                 DocumentReference documentReference = reportsReference.document();
-                                newReport = new Report("Relatório em grupo", currentUser.getName(), documentReference.getId(), stringDate);
+                                newReport = new Report(reportTitle , currentUser.getName(), documentReference.getId(), stringDate);
+                                final ArrayList<User> reportMembers = new ArrayList<>();
 
+                                //ADD A SI PROPRIO NO GRUPO
+                                users.add(currentUser);
+                                seletedItems.add(users.size()-1);
+                                String s = "";
+                                for (int i = 0 ; i < seletedItems.size() ; i++){
+                                    //AMIGOS QUE FORMAM SELECIONADOS
+                                    reportMembers.add(users.get(seletedItems.get(i)));
+
+                                }
+                                newReport.setReportMembers(reportMembers);
+                                for(int i=0 ; i < reportMembers.size() ; i++){
+                                    s += reportMembers.get(i).getName();
+                                    if(i == reportMembers.size()-1)
+                                        s+=".";
+                                    else
+                                        s+=", ";
+                                }
+                                newReport.setReportSubtitle(s);
                                 documentReference.set(newReport).addOnSuccessListener(new OnSuccessListener<Void>() {
                                     @Override
                                     public void onSuccess(Void aVoid) {
-                                        //ADD A SI PROPRIO NO GRUPO
-                                        users.add(currentUser);
-                                        seletedItems.add(users.size()-1);
-
-                                        for (int i = 0 ; i < seletedItems.size() ; i++){
-                                            //AMIGOS QUE FORMAM SELECIONADOS
-                                            final User user = users.get(seletedItems.get(i));
-                                            DocumentReference myReportReference = usersReference.document(user.getId())
-                                                    .collection("reports").document(newReport.getReportId());
-
-                                            myReportReference.set(newReport).addOnCompleteListener(new OnCompleteListener<Void>() {
-                                                @Override
-                                                public void onComplete(@NonNull Task<Void> task) {
-                                                    if (task.isSuccessful()) {
-                                                        Toast.makeText(getActivity(), user.getName() + " adicionado(a) com sucesso" , Toast.LENGTH_SHORT).show();
-                                                    } else {
-                                                        Toast.makeText(getActivity(),  "Falha ao adicionar " + user.getName(), Toast.LENGTH_LONG).show();
-                                                    }
-                                                }
-                                            });
+                                        for(final User u : reportMembers){
+                                            DocumentReference userReportReference = FirebasePreferences.getFirebaseFirestore()
+                                                    .collection("users").document(u.getId()).collection("reports")
+                                                    .document(newReport.getReportId());
+                                            userReportReference.set(newReport)
+                                                    .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                                        @Override
+                                                        public void onComplete(@NonNull Task<Void> task) {
+                                                            if (task.isSuccessful()) {
+                                                                Toast.makeText(getActivity(), u.getName() + " adicionado(a)" , Toast.LENGTH_SHORT).show();
+                                                            } else {
+                                                                Toast.makeText(getActivity(),  "Falha ao adicionar " + u.getName(), Toast.LENGTH_LONG).show();
+                                                            }
+                                                        }
+                                                    });
                                         }
+                                        openReport(newReport);
                                     }
                                 });
-
                             }
                         })
                 .setNegativeButton("Cancelar",
@@ -375,4 +376,92 @@ public class ReportFragment extends Fragment {
                 .create()
                 .show();
     }
+
+    private void openReport(Report report){
+        Intent intent = new Intent( getActivity(), ReportEditor.class);
+        preferences.saveReport(report);
+        startActivity(intent);
+    }
+
+    private void deleteReport() {
+        // AlertDialog para confirmar a exclusão
+        new AlertDialog.Builder(getActivity())
+                .setTitle(R.string.delete)
+                .setIcon( R.drawable.ic_warning)
+                .setMessage(R.string.sure_to_delete_report)
+                .setPositiveButton(R.string.delete, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+
+                        selectedReportReference.delete()
+                                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                    @Override
+                                    public void onSuccess(Void aVoid) {
+                                        for(User u : selectedReport.getReportMembers()){
+                                            DocumentReference userReportReference = FirebasePreferences.getFirebaseFirestore()
+                                                    .collection("users").document(u.getId()).collection("reports")
+                                                    .document(selectedReport.getReportId());
+                                            userReportReference.delete();
+                                        }
+                                        Toast.makeText(getActivity(), R.string.deleted, Toast.LENGTH_LONG).show();
+                                    }
+                                })
+                                .addOnFailureListener(new OnFailureListener() {
+                                    @Override
+                                    public void onFailure(@NonNull Exception e) {
+                                        Toast.makeText(getActivity(),R.string.delete_error, Toast.LENGTH_SHORT).show();
+                                    }
+                                });
+                    }
+                })
+                .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        // User cancelled the dialog
+                    }
+                })
+                .create()
+                .show();
+    }
+
+    private void updateReportTitle() {
+        final EditText editText = new EditText(getActivity());
+        new AlertDialog.Builder(getActivity())
+                .setTitle(R.string.rename_report)
+                .setMessage(R.string.new_experiment_hint)
+                .setCancelable(false)
+                .setView( editText )
+                .setPositiveButton(R.string.rename, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        // Pega o email digitado pelo usuario
+                        final String reportTitle = editText.getText().toString();
+                        //Valida se o e-mail foi digitado
+                        if( reportTitle.isEmpty() ){
+                            Toast.makeText(getActivity(), R.string.type_something, Toast.LENGTH_LONG).show();
+                        }else{
+                            selectedReportReference
+                                    .update("reportTitle", reportTitle)
+                                    .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                        @Override
+                                        public void onComplete(@NonNull Task<Void> task) {
+                                            for(User u : selectedReport.getReportMembers()){
+                                                DocumentReference userReportReference = FirebasePreferences.getFirebaseFirestore()
+                                                        .collection("users").document(u.getId()).collection("reports")
+                                                        .document(selectedReport.getReportId());
+                                                userReportReference.update("reportTitle", reportTitle);
+                                            }
+                                            Toast.makeText(getActivity(), R.string.renamed, Toast.LENGTH_LONG).show();
+                                        }
+                                    });
+                        }
+                    }
+                })
+                .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                    }
+                })
+                .create()
+                .show();
+    }
+
 }

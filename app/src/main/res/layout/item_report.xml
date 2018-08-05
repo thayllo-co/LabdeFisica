@@ -36,12 +36,11 @@
             android:id="@+id/reportSubtitleTextView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignBottom="@+id/imageView"
+            android:layout_below="@+id/reportTitleTextView"
             android:layout_alignLeft="@+id/reportTitleTextView"
-            android:layout_alignStart="@+id/reportTitleTextView"
-            android:lines="1"
             android:textAppearance="?android:attr/textAppearanceSmall"
-            tools:text="subtitulo" />
+            tools:text="subtitulo"
+            android:layout_alignStart="@+id/reportTitleTextView" />
 
 
     </RelativeLayout>

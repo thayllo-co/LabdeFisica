@@ -6,11 +6,6 @@
     <item
         android:id="@+id/generateReport"
         android:title="@string/generate_report"
-        android:icon="@drawable/ic_pdf_white"
-        app:showAsAction="ifRoom"/>
-    <item
-        android:id="@+id/deleteReport"
-        android:title="@string/delete_report"
-        android:icon="@drawable/ic_delete"
-        app:showAsAction="never"/>
+        app:showAsAction="always"
+        android:icon="@drawable/ic_pdf_white"/>
 </menu>
