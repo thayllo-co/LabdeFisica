@@ -1,7 +1,6 @@
 package br.thayllo.labdefisica.fragment;
 
 
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -9,7 +8,6 @@ import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.FloatingActionButton.Behavior;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.NestedScrollView;
@@ -27,7 +25,6 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
-import android.widget.ScrollView;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
@@ -253,7 +250,7 @@ public class BarChartPicker extends Fragment implements View.OnClickListener {
 
             for( int j=0; j <= columns ; j++ ){
 
-                inputEditText = (EditText) getActivity().getLayoutInflater().inflate(R.layout.item_cell_editable, null);
+                inputEditText = (EditText) getActivity().getLayoutInflater().inflate(R.layout.item_cell, null);
                 inputEditText.setSelectAllOnFocus(true);
                 inputEditText.addTextChangedListener(new TextWatcher() {
                     @Override

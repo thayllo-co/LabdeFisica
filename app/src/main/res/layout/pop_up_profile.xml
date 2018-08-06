@@ -11,36 +11,43 @@
         android:layout_height="250dp"
         android:padding="@dimen/activity_horizontal_margin">
 
-        <TextView
-            android:id="@+id/nameTextView"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+        <de.hdodenhof.circleimageview.CircleImageView
+            android:id="@+id/popupCircleImageView"
+            android:layout_width="70dp"
+            android:layout_height="70dp"
             android:layout_alignParentTop="true"
             android:layout_centerHorizontal="true"
-            android:layout_marginTop="30dp"
+            android:src="@drawable/profile_person"/>
+
+        <TextView
+            android:id="@+id/popupNameTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_below="@+id/popupCircleImageView"
             style="@style/TextAppearance.AppCompat.Large"
             android:textSize="25dp"
             android:text="TextView"/>
 
         <TextView
-            android:id="@+id/emailTextView"
+            android:id="@+id/popupEmailTextView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/nameTextView"
+            android:layout_below="@+id/popupNameTextView"
             android:layout_centerHorizontal="true"
             android:text="TextView" />
 
         <TextView
-            android:id="@+id/idTextView"
+            android:id="@+id/popupIdTextView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/emailTextView"
+            android:layout_below="@+id/popupEmailTextView"
             android:layout_centerHorizontal="true"
             android:gravity="center_horizontal"
             android:text="TextView" />
 
         <Button
-            android:id="@+id/addFriendButton"
+            android:id="@+id/popupAddFriendButton"
             style="@style/Widget.AppCompat.Button.Colored"
             android:layout_width="200dp"
             android:layout_height="wrap_content"
@@ -51,7 +58,7 @@
             android:textColor="@android:color/white" />
 
         <ProgressBar
-            android:id="@+id/profileProgressBar"
+            android:id="@+id/popupProgressBar"
             style="?android:attr/progressBarStyle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

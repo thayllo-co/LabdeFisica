@@ -12,14 +12,16 @@
         android:layout_height="match_parent">
 
         <TextView
-            android:id="@+id/report_page_title"
+            android:id="@+id/reportHeaderTextView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_margin="@dimen/default_margin"
             android:gravity="center_horizontal"
-            android:text="@string/reports_in_progress"
+            android:padding="@dimen/default_margin"
+            android:text="@string/my_reports"
             android:textColor="#000000"
-            android:textSize="@dimen/report_page_title" />
+            style="@style/TextAppearance.AppCompat"
+            android:textSize="24sp"
+            android:visibility="gone"/>
 
         <ListView
             android:id="@+id/reportsListView"
@@ -27,8 +29,9 @@
             android:layout_height="match_parent"
             android:layout_alignParentLeft="true"
             android:layout_alignParentStart="true"
-            android:layout_below="@+id/report_page_title"
-            android:padding="@dimen/default_margin"/>
+            android:layout_below="@+id/reportHeaderTextView"
+            android:padding="@dimen/default_margin"
+            android:visibility="gone"/>
 
         <android.support.design.widget.FloatingActionButton
             android:id="@+id/addRepoortFloatingActionButton"
@@ -45,11 +48,11 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerInParent="true"
-            android:text="@string/empty_screen_tip"
+            android:text="@string/empty_report_list"
             android:gravity="center_horizontal"
             android:layout_margin="@dimen/default_margin"
             android:textAppearance="@style/Base.TextAppearance.AppCompat.Medium"
-            android:visibility="visible"/>
+            android:visibility="gone"/>
 
     </RelativeLayout>
 

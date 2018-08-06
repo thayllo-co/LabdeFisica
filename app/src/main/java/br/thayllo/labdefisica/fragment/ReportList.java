@@ -17,7 +17,6 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ListView;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -33,7 +32,6 @@ import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
-import com.google.firebase.storage.StorageReference;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -51,9 +49,9 @@ import br.thayllo.labdefisica.settings.Preferences;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class ReportFragment extends Fragment {
+public class ReportList extends Fragment {
 
-    private static final String TAG = "ERRR-ReportList";
+    private static final String TAG = "ERRR-ReportFragment";
     private ListView repostsListView;
     private ArrayAdapter<Report> reportsAdapter;
     private User currentUser;
@@ -62,6 +60,7 @@ public class ReportFragment extends Fragment {
     private Preferences preferences;
     private FloatingActionButton addReportFAB;
     private TextView emptyReportListTextView;
+    private TextView reportHeaderTextView;
     private Report selectedReport;
 
     private CollectionReference reportsReference = FirebasePreferences.getFirebaseFirestore()
@@ -72,13 +71,8 @@ public class ReportFragment extends Fragment {
     private CollectionReference myReportsReference;
     private DocumentReference selectedReportReference;
 
-    public ReportFragment() {
+    public ReportList() {
         // Required empty public constructor
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
     }
 
     @Override
@@ -87,6 +81,7 @@ public class ReportFragment extends Fragment {
         // Inflate the layout for this fragment
         View view =  inflater.inflate(R.layout.fragment_report, container, false);
 
+        reportHeaderTextView = view.findViewById(R.id.reportHeaderTextView);
         repostsListView = view.findViewById(R.id.reportsListView);
         addReportFAB = view.findViewById(R.id.addRepoortFloatingActionButton);
         emptyReportListTextView = view.findViewById(R.id.emptyReportListTextView);
@@ -106,7 +101,7 @@ public class ReportFragment extends Fragment {
 
         myReportsReference
                 .orderBy("reportAddedAt", Query.Direction.ASCENDING)
-                .addSnapshotListener(getActivity(), new EventListener<QuerySnapshot>() {
+                .addSnapshotListener(new EventListener<QuerySnapshot>() {
                             @Override
                             public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException e) {
                                 if (e != null) {
@@ -138,14 +133,20 @@ public class ReportFragment extends Fragment {
                                     }
                                 }
                                 reportsAdapter.notifyDataSetChanged();
-                                if(reportList.size() < 1 )
+                                if(reportList.size() < 1 ){
                                     emptyReportListTextView.setVisibility(View.VISIBLE);
-                                else
+                                    repostsListView.setVisibility(View.GONE);
+                                    reportHeaderTextView.setVisibility(View.GONE);
+                                } else {
                                     emptyReportListTextView.setVisibility(View.GONE);
+                                    repostsListView.setVisibility(View.VISIBLE);
+                                    reportHeaderTextView.setVisibility(View.VISIBLE);
+                                }
                             }
                         }
                 );
 
+        // abre o relatorio selecionado
         repostsListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -153,6 +154,7 @@ public class ReportFragment extends Fragment {
             }
         });
 
+        // abre as opções de edição
         repostsListView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
@@ -161,10 +163,10 @@ public class ReportFragment extends Fragment {
                 selectedReportReference = FirebasePreferences.getFirebaseFirestore()
                         .collection("reports").document(selectedReport.getReportId());
 
-                final CharSequence[] reportTypes = {"Renomear relatório", "Excluir relatório"};
+                final CharSequence[] reportOptios = {getString(R.string.rename_report), getString(R.string.delete_report)};
                 new AlertDialog.Builder(getActivity())
                         .setTitle("Opções")
-                        .setItems(reportTypes,
+                        .setItems(reportOptios,
                                 new DialogInterface.OnClickListener() {
                                     @Override
                                     public void onClick(DialogInterface dialog, int which) {
@@ -189,6 +191,7 @@ public class ReportFragment extends Fragment {
             public void onClick(View view) { setReportTitle();
             }
         });
+
         return view;
     }
 
@@ -199,7 +202,7 @@ public class ReportFragment extends Fragment {
                 .setMessage(R.string.new_experiment_hint)
                 .setCancelable(false)
                 .setView( editText )
-                .setPositiveButton(R.string.create, new DialogInterface.OnClickListener() {
+                .setPositiveButton(R.string.next, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         // Pega o email digitado pelo usuario
@@ -223,9 +226,9 @@ public class ReportFragment extends Fragment {
 
     private void reportTypeChooser(final String reportTitle){
 
-        final CharSequence[] reportTypes = {"Individual", "Grupo"};
+        final CharSequence[] reportTypes = {getString(R.string.individual), getString(R.string.group)};
         new AlertDialog.Builder(getActivity())
-                .setTitle("Tipo de Relatório")
+                .setTitle(R.string.report_type)
                 .setItems(reportTypes,
                         new DialogInterface.OnClickListener() {
                             @Override
@@ -260,10 +263,12 @@ public class ReportFragment extends Fragment {
         final DocumentReference myReportReference = usersReference.document(currentUser.getId())
                 .collection("reports").document(newReport.getReportId());
 
+        // add na coleção reports do bd
         documentReference.set(newReport)
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
+                        // add na coleção do usuario
                         myReportReference.set(newReport)
                                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                                     @Override
@@ -277,13 +282,13 @@ public class ReportFragment extends Fragment {
 
     private void addGroupReport(final String reportTitle){
         final List<User> friendsList = new ArrayList<>();
+        // carrega a lista de amigos do usuario
         myContactsReference
                 .orderBy("name", Query.Direction.ASCENDING)
                 .addSnapshotListener(getActivity(), new EventListener<QuerySnapshot>() {
                     @Override
                     public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException e) {
                         if (e != null) {
-                            Toast.makeText(getActivity(), e.getMessage(), Toast.LENGTH_LONG);
                             return;
                         }
                         List<String> friendsDialogList = new ArrayList<>();
@@ -299,6 +304,7 @@ public class ReportFragment extends Fragment {
     }
 
     private void pickFriendsDialog(final String reportTitle, CharSequence[] charSequence, final List<User> users){
+        // carrega a lista de amigos na dialog
         final ArrayList<Integer> seletedItems = new ArrayList();
         new AlertDialog.Builder(getActivity())
                 .setTitle("Selecione Amigos")
@@ -306,6 +312,7 @@ public class ReportFragment extends Fragment {
                         new DialogInterface.OnMultiChoiceClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which, boolean isChecked) {
+                                // amigos selecionados
                                 if (isChecked) {
                                     seletedItems.add(which);
                                 } else if (seletedItems.contains(which)) {
@@ -317,24 +324,19 @@ public class ReportFragment extends Fragment {
                         new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
+                                // cria um novo relatorio cos os usuarios selecionados na dialog
                                 Calendar calendar = Calendar.getInstance();
                                 SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd-HH:mm:ss.SSS");
                                 String stringDate = dateFormat.format(calendar.getTime());
-
-                                DocumentReference documentReference = reportsReference.document();
-                                newReport = new Report(reportTitle , currentUser.getName(), documentReference.getId(), stringDate);
+                                // prepara a lista de usuarios do relatorio
                                 final ArrayList<User> reportMembers = new ArrayList<>();
-
-                                //ADD A SI PROPRIO NO GRUPO
-                                users.add(currentUser);
+                                users.add(currentUser); // add o currentUser ao relatorio tbm
                                 seletedItems.add(users.size()-1);
-                                String s = "";
-                                for (int i = 0 ; i < seletedItems.size() ; i++){
-                                    //AMIGOS QUE FORMAM SELECIONADOS
+                                for (int i = 0 ; i < seletedItems.size() ; i++){ // amigos que foram selecionados
                                     reportMembers.add(users.get(seletedItems.get(i)));
-
                                 }
-                                newReport.setReportMembers(reportMembers);
+                                // string com o nome de todos os usuarios do report
+                                String s = "";
                                 for(int i=0 ; i < reportMembers.size() ; i++){
                                     s += reportMembers.get(i).getName();
                                     if(i == reportMembers.size()-1)
@@ -342,10 +344,14 @@ public class ReportFragment extends Fragment {
                                     else
                                         s+=", ";
                                 }
-                                newReport.setReportSubtitle(s);
+                                DocumentReference documentReference = reportsReference.document();
+                                newReport = new Report(reportTitle , s, documentReference.getId(), stringDate);
+                                newReport.setReportMembers(reportMembers);
+                                // add na coleção reports do bd
                                 documentReference.set(newReport).addOnSuccessListener(new OnSuccessListener<Void>() {
                                     @Override
                                     public void onSuccess(Void aVoid) {
+                                        // add na coleção de cada usuario de reportMembers
                                         for(final User u : reportMembers){
                                             DocumentReference userReportReference = FirebasePreferences.getFirebaseFirestore()
                                                     .collection("users").document(u.getId()).collection("reports")
@@ -355,7 +361,8 @@ public class ReportFragment extends Fragment {
                                                         @Override
                                                         public void onComplete(@NonNull Task<Void> task) {
                                                             if (task.isSuccessful()) {
-                                                                Toast.makeText(getActivity(), u.getName() + " adicionado(a)" , Toast.LENGTH_SHORT).show();
+                                                                if(u.getId() != currentUser.getId())
+                                                                    Toast.makeText(getActivity(), u.getName() + " adicionado(a)" , Toast.LENGTH_SHORT).show();
                                                             } else {
                                                                 Toast.makeText(getActivity(),  "Falha ao adicionar " + u.getName(), Toast.LENGTH_LONG).show();
                                                             }
@@ -426,7 +433,7 @@ public class ReportFragment extends Fragment {
         final EditText editText = new EditText(getActivity());
         new AlertDialog.Builder(getActivity())
                 .setTitle(R.string.rename_report)
-                .setMessage(R.string.new_experiment_hint)
+                .setMessage(R.string.new_report_title)
                 .setCancelable(false)
                 .setView( editText )
                 .setPositiveButton(R.string.rename, new DialogInterface.OnClickListener() {
@@ -438,11 +445,13 @@ public class ReportFragment extends Fragment {
                         if( reportTitle.isEmpty() ){
                             Toast.makeText(getActivity(), R.string.type_something, Toast.LENGTH_LONG).show();
                         }else{
+                            // atualiza titulo do relatorio
                             selectedReportReference
                                     .update("reportTitle", reportTitle)
                                     .addOnCompleteListener(new OnCompleteListener<Void>() {
                                         @Override
                                         public void onComplete(@NonNull Task<Void> task) {
+                                            // atualiza o titulo do relatorio em todos que tem acesso
                                             for(User u : selectedReport.getReportMembers()){
                                                 DocumentReference userReportReference = FirebasePreferences.getFirebaseFirestore()
                                                         .collection("users").document(u.getId()).collection("reports")

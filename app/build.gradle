@@ -43,10 +43,10 @@ dependencies {
 
     //Firebase dependencies
     implementation 'com.google.firebase:firebase-core:15.0.2'
-    implementation 'com.google.firebase:firebase-database:15.0.0'
+    /*implementation 'com.google.firebase:firebase-database:15.0.0'*/
     implementation 'com.google.firebase:firebase-storage:15.0.2'
     implementation 'com.google.firebase:firebase-auth:15.1.0'
-    implementation 'com.google.firebase:firebase-messaging:15.0.2'
+    /*implementation 'com.google.firebase:firebase-messaging:15.0.2'*/
     implementation 'com.google.firebase:firebase-firestore:15.0.0'
 
     // Firebase UI
@@ -68,7 +68,7 @@ dependencies {
     implementation 'de.hdodenhof:circleimageview:2.2.0'
 
     //ver pdf
-    implementation 'com.github.barteksc:android-pdf-viewer:2.8.2'
+    /*implementation 'com.github.barteksc:android-pdf-viewer:2.8.2'*/
 }
 
 apply plugin: 'com.google.gms.google-services'

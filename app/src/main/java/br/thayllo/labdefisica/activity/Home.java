@@ -1,17 +1,19 @@
 package br.thayllo.labdefisica.activity;
 
+import android.Manifest;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
-import android.view.View;
-import android.widget.FrameLayout;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.firebase.ui.auth.AuthUI;
@@ -26,58 +28,59 @@ import java.util.Arrays;
 import java.util.List;
 
 import br.thayllo.labdefisica.R;
-import br.thayllo.labdefisica.fragment.LaboratoryFragment;
-import br.thayllo.labdefisica.fragment.ProfileFragment;
-import br.thayllo.labdefisica.fragment.ReportFragment;
+import br.thayllo.labdefisica.fragment.Laboratory;
+import br.thayllo.labdefisica.fragment.Profile;
+import br.thayllo.labdefisica.fragment.ReportList;
 import br.thayllo.labdefisica.helper.Base64Custom;
 import br.thayllo.labdefisica.model.User;
 import br.thayllo.labdefisica.settings.FirebasePreferences;
 import br.thayllo.labdefisica.settings.Preferences;
 
-public class Home extends AppCompatActivity implements BottomNavigationView.OnNavigationItemSelectedListener{
+public class Home extends AppCompatActivity implements BottomNavigationView.OnNavigationItemSelectedListener {
 
-    // Choose an arbitrary request code value
+    private static final int RC_PERMISSIONS = 10;
+    private static String[] PERMISSIONS_STORAGE = {
+            Manifest.permission.WRITE_EXTERNAL_STORAGE,
+            Manifest.permission.READ_EXTERNAL_STORAGE,
+            Manifest.permission.INTERNET
+    };
     private static final int RC_SIGN_IN = 123;
-
-    // Choose authentication providers
     List<AuthUI.IdpConfig> providers = Arrays.asList(
             new AuthUI.IdpConfig.EmailBuilder().build(),
             new AuthUI.IdpConfig.GoogleBuilder().build(),
             new AuthUI.IdpConfig.FacebookBuilder().build());
 
-    private FirebaseAuth mFirebaseAuth;
-    private Preferences preferences;
-    private FirebaseAuth.AuthStateListener mAuthStateListener;
     private User mainUser;
+    private Preferences preferences;
+    private BottomNavigationView bottomNavigationView;
+    private FirebaseAuth.AuthStateListener mAuthStateListener;
+    private FirebaseAuth mFirebaseAuth = FirebasePreferences.getFirebaseAuth();
     private CollectionReference usersFirebaseFirestore = FirebasePreferences.getFirebaseFirestore()
             .collection("users");
-    private BottomNavigationView bottomNavigationView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
+        // verifica se o usuario solicitou logout em ProfileFragment
+        if (getIntent().getBooleanExtra("LOGOUT", false)) { finish(); }
 
         bottomNavigationView = findViewById(R.id.homeBottomNavigation);
         bottomNavigationView.setOnNavigationItemSelectedListener(this);
         bottomNavigationView.setSelectedItemId(R.id.navigation_laboratory);
-        loadFragment(new LaboratoryFragment());
+        loadFragment(new Laboratory());
 
         preferences = new Preferences(Home.this);
-        mFirebaseAuth = FirebasePreferences.getFirebaseAuth();
         mainUser = preferences.getUser();
 
         mAuthStateListener = new FirebaseAuth.AuthStateListener() {
             @Override
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
                 FirebaseUser firebaseUser = firebaseAuth.getCurrentUser();
-
-                if( firebaseUser != null){
-                    //user is signed in;
-
+                if (firebaseUser != null) {
+                    // usuario logado
                 } else {
-                    //user is signed out
-                    Toast.makeText(Home.this, "DESCONECTADO", Toast.LENGTH_SHORT).show();
+                    // sem usuario logado
                     startActivityForResult(
                             AuthUI.getInstance()
                                     .createSignInIntentBuilder()
@@ -90,19 +93,24 @@ public class Home extends AppCompatActivity implements BottomNavigationView.OnNa
                 }
             }
         };
-
-
     }
 
-    private boolean loadFragment(Fragment fragment){
-        if( fragment != null){
-            getSupportFragmentManager()
-                    .beginTransaction()
-                    .replace(R.id.fragmentContainerFrameLayout, fragment)
-                    .commit();
-            return true;
+    @Override
+    protected void onResume() {
+        super.onResume();
+        // add listener do usuario
+        mFirebaseAuth.addAuthStateListener(mAuthStateListener);
+        // configura permissões
+        permissionsSetUp();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        // remove listener do usuario
+        if (mAuthStateListener != null) {
+            mFirebaseAuth.removeAuthStateListener(mAuthStateListener);
         }
-        return false;
     }
 
     @Override
@@ -110,13 +118,13 @@ public class Home extends AppCompatActivity implements BottomNavigationView.OnNa
         Fragment fragment = null;
         switch (item.getItemId()) {
             case R.id.navigation_profile:
-                fragment = new ProfileFragment();
-                break;
-            case R.id.navigation_report:
-                fragment = new ReportFragment();
+                fragment = new Profile();
                 break;
             case R.id.navigation_laboratory:
-                fragment = new LaboratoryFragment();
+                fragment = new Laboratory();
+                break;
+            case R.id.navigation_report:
+                fragment = new ReportList();
                 break;
         }
         return loadFragment(fragment);
@@ -128,50 +136,88 @@ public class Home extends AppCompatActivity implements BottomNavigationView.OnNa
 
         if (requestCode == RC_SIGN_IN) {
             if (resultCode == RESULT_OK) {
-                // Sign-in succeeded, set up the UI
+                // login com sucesso
                 FirebaseUser firebaseUser = FirebasePreferences.getFirebaseAuth().getCurrentUser();
                 final FirebaseUserMetadata metadata = FirebasePreferences.getFirebaseAuth().getCurrentUser().getMetadata();
 
                 mainUser.setId(Base64Custom.codificarBase64(firebaseUser.getEmail()));
                 mainUser.setName(firebaseUser.getDisplayName());
                 mainUser.setEmail(firebaseUser.getEmail());
-                preferences.saveUser( mainUser );
+                if(firebaseUser.getPhotoUrl() != null)
+                    mainUser.setPhotoUrl(firebaseUser.getPhotoUrl().toString());
+                preferences.saveUser(mainUser);
 
                 DocumentReference documentReference = usersFirebaseFirestore.document(mainUser.getId());
 
                 if (metadata.getCreationTimestamp() == metadata.getLastSignInTimestamp()) {
-                    // The user is new, show them a fancy intro screen!
+                    // se o usuario é novo grava no bd suas infos
                     documentReference.set(mainUser)
                             .addOnSuccessListener(new OnSuccessListener<Void>() {
                                 @Override
                                 public void onSuccess(Void aVoid) {
-                                    Toast.makeText(Home.this, "NOVO USUARIO" , Toast.LENGTH_LONG).show();
+                                    Toast.makeText(Home.this, getString(R.string.welcome) + " " + mainUser.getName(), Toast.LENGTH_LONG).show();
                                 }
                             });
                 } else {
-                    // This is an existing user, show them a welcome back screen.
-                    Toast.makeText(Home.this, "USUARIO VOLTANDO" , Toast.LENGTH_LONG).show();
+                    // usuario retornando
+                    Toast.makeText(Home.this, getString(R.string.welcome_back) + " " + mainUser.getName(), Toast.LENGTH_LONG).show();
                 }
 
             } else if (resultCode == RESULT_CANCELED) {
-                // Sign in was canceled by the user, finish the activity
-                Toast.makeText(this, "Sign in canceled", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, R.string.signin_canceled, Toast.LENGTH_SHORT).show();
                 finish();
             }
         }
     }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-        mFirebaseAuth.addAuthStateListener(mAuthStateListener);
+    private boolean loadFragment(Fragment fragment) {
+        if (fragment != null) {
+            getSupportFragmentManager()
+                    .beginTransaction()
+                    .replace(R.id.fragmentContainerFrameLayout, fragment)
+                    .commit();
+            return true;
+        }
+        return false;
     }
 
-    @Override
-    protected void onPause() {
-        super.onPause();
-        if( mAuthStateListener != null){
-            mFirebaseAuth.removeAuthStateListener(mAuthStateListener);
+    public void permissionsSetUp(){
+
+        int permission = ContextCompat.checkSelfPermission( this, Manifest.permission.WRITE_EXTERNAL_STORAGE);
+
+        if ( permission != PackageManager.PERMISSION_GRANTED) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+                    new AlertDialog.Builder(this)
+                            .setTitle(R.string.confirmation)
+                            .setIcon(R.drawable.ic_warning)
+                            .setMessage(R.string.permissions_warning)
+                            .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    ActivityCompat.requestPermissions(Home.this,
+                                            PERMISSIONS_STORAGE,
+                                            RC_PERMISSIONS);
+                                }
+                            })
+                            .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    finish();
+                                }
+                            })
+                            .create()
+                            .show();
+                    return;
+                } else {
+                    ActivityCompat.requestPermissions(Home.this,
+                            PERMISSIONS_STORAGE,
+                            RC_PERMISSIONS);
+                }
+            }
+            return;
+        } else {
+
         }
     }
 

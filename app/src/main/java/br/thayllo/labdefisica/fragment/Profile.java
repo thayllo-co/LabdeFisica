@@ -3,7 +3,6 @@ package br.thayllo.labdefisica.fragment;
 
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -12,7 +11,6 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -23,8 +21,6 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -34,9 +30,6 @@ import com.firebase.ui.auth.AuthUI;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.DocumentReference;
@@ -45,15 +38,11 @@ import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
-import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
 
 import br.thayllo.labdefisica.R;
-import br.thayllo.labdefisica.activity.AttachmentPicker;
 import br.thayllo.labdefisica.activity.Home;
 import br.thayllo.labdefisica.adapter.ContactAdapter;
 import br.thayllo.labdefisica.helper.Base64Custom;
@@ -65,7 +54,7 @@ import de.hdodenhof.circleimageview.CircleImageView;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class ProfileFragment extends Fragment {
+public class Profile extends Fragment {
 
     private Preferences preferences;
     private User currentUser;
@@ -81,7 +70,7 @@ public class ProfileFragment extends Fragment {
     private CollectionReference usersFirebaseFirestore = FirebasePreferences.getFirebaseFirestore()
             .collection("users");
 
-    public ProfileFragment() {
+    public Profile() {
         // Required empty public constructor
     }
 
@@ -91,8 +80,6 @@ public class ProfileFragment extends Fragment {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_profile, container, false);
 
-        setHasOptionsMenu(true);
-
         userNameTextView = view.findViewById(R.id.userNameProfileTextView);
         userEmailTextView = view.findViewById(R.id.userEmailProfileTextView);
         userIdProfileTextView = view.findViewById(R.id.userIdProfileTextView);
@@ -100,6 +87,8 @@ public class ProfileFragment extends Fragment {
         profileToolbar = view.findViewById(R.id.profileToolbar);
         profileCircleImageView = view.findViewById(R.id.profileCircleImageView);
 
+        // configura o ActionBar
+        setHasOptionsMenu(true);
         ((AppCompatActivity)getActivity()).setSupportActionBar(profileToolbar);
         profileToolbar.setTitle("");
 
@@ -110,11 +99,11 @@ public class ProfileFragment extends Fragment {
         userEmailTextView.setText(currentUser.getEmail());
         userIdProfileTextView.setText(currentUser.getId());
 
-        Uri photoUrl = FirebasePreferences.getFirebaseAuth().getCurrentUser().getPhotoUrl();
-        if(photoUrl != null){
+        // carrega foto do perfil
+        if(currentUser.getPhotoUrl() != null){
             Picasso.get()
-                    .load(photoUrl)
-                    .into((ImageView) profileCircleImageView);
+                    .load(currentUser.getPhotoUrl())
+                    .into(profileCircleImageView);
         } else {
             profileCircleImageView.setImageDrawable(ContextCompat.getDrawable(getContext(),R.drawable.profile_person));
         }
@@ -128,18 +117,36 @@ public class ProfileFragment extends Fragment {
 
         myContactsReference
                 .orderBy("name", Query.Direction.ASCENDING)
-                .addSnapshotListener(getActivity(), new EventListener<QuerySnapshot>() {
+                .addSnapshotListener(new EventListener<QuerySnapshot>() {
                     @Override
                     public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException e) {
                         if (e != null) {
                             return;
                         }
+                        User user;
                         for(DocumentChange doc : queryDocumentSnapshots.getDocumentChanges()){
-                            if(doc.getType() == DocumentChange.Type.ADDED){
-                                friendsList.add(doc.getDocument().toObject(User.class));
-                            }else if(doc.getType() == DocumentChange.Type.REMOVED){
-                                //reportsAdapter.notifyDataSetChanged();
+                            switch (doc.getType()) {
+                                case ADDED:
+                                    friendsList.add(doc.getDocument().toObject(User.class));
+                                    break;
+                                case MODIFIED: //implementado tratamento mas não seu uso ainda
+                                    user = doc.getDocument().toObject(User.class);
+                                    for (User u : friendsList){
+                                        if(u.getId().equals(user.getId())){
+                                            friendsList.get(friendsList.indexOf(u)).setName(user.getName());
+                                        }
+                                    }
+                                    break;
+                                case REMOVED: //implementado tratamento mas não seu uso ainda
+                                    user = doc.getDocument().toObject(User.class);
+                                    for (User u : friendsList){
+                                        if(u.getId().equals(user.getId())){
+                                            friendsList.remove(u);
+                                        }
+                                    }
+                                    break;
                             }
+
                             friendsAdapter.notifyDataSetChanged();
                         }
                     }
@@ -165,17 +172,14 @@ public class ProfileFragment extends Fragment {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()){
             case R.id.addFriendButton:
-                searchProfile();
+                searchProfileDialog();
                 break;
             case R.id.exitAppButton:
                 signOut();
                 break;
-
         }
         return super.onOptionsItemSelected(item);
     }
-
-
 
     private void signOut() {
         new AlertDialog.Builder(getActivity())
@@ -190,10 +194,13 @@ public class ProfileFragment extends Fragment {
                                         .signOut(getActivity())
                                         .addOnCompleteListener(new OnCompleteListener<Void>() {
                                             public void onComplete(@NonNull Task<Void> task) {
-                                                // user is now signed out
-                                                Toast.makeText(getActivity(), "Desconectado", Toast.LENGTH_SHORT).show();
                                                 preferences.limpar();
-                                                //getActivity().finish();
+                                                // manda para Home que deseja fechar o app
+                                                Intent intent = new Intent(getActivity(), Home.class);
+                                                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                                                intent.putExtra("LOGOUT", true);
+                                                startActivity(intent);
+                                                getActivity().finish();
                                             }
                                         });
                             }
@@ -203,34 +210,32 @@ public class ProfileFragment extends Fragment {
                         new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
-
                             }
                         })
                 .create()
                 .show();
     }
 
-    private void searchProfile(){
+    private void searchProfileDialog(){
         final EditText editText = new EditText(getActivity());
-        editText.setHint("Digite o e-mail");
+        editText.setHint(R.string.email_tip);
         new AlertDialog.Builder(getActivity())
                 .setTitle(R.string.new_contact)
                 .setCancelable(false)
                 .setView(editText)
-                .setPositiveButton(R.string.look_for,
+                .setPositiveButton(R.string.search_for,
                         new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
-
                                 String emailContato = editText.getText().toString();
                                 String idContato = Base64Custom.codificarBase64(emailContato);
 
                                 if( emailContato.isEmpty() ){
-                                    Toast.makeText(getActivity(), "Preencha o e-mail", Toast.LENGTH_LONG).show();
-                                }else {
+                                    Toast.makeText(getActivity(), R.string.type_something, Toast.LENGTH_SHORT).show();
+                                } else {
+                                    // procura no bd o email passado pelo usuario
                                     DocumentReference friendReference = FirebasePreferences.getFirebaseFirestore()
                                             .collection("users").document(idContato);
-
                                     friendReference.get()
                                             .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                                                 @Override
@@ -238,14 +243,14 @@ public class ProfileFragment extends Fragment {
                                                     if (task.isSuccessful()) {
                                                         DocumentSnapshot document = task.getResult();
                                                         if (document.exists()) {
+                                                            // se encontrado abre a dialog para add
                                                             User newFriend = document.toObject(User.class);
-                                                            Toast.makeText(getActivity(), "ENCONTRADO", Toast.LENGTH_SHORT).show();
                                                             popUpProfile(newFriend);
                                                         } else {
-                                                            Toast.makeText(getActivity(), "NÃO ENCONTRADO", Toast.LENGTH_LONG).show();
+                                                            Toast.makeText(getActivity(), R.string.not_found, Toast.LENGTH_LONG).show();
                                                         }
                                                     } else {
-                                                        Toast.makeText(getActivity(), task.getException().getMessage(), Toast.LENGTH_LONG).show();
+                                                        //Toast.makeText(getActivity(), task.getException().getMessage(), Toast.LENGTH_LONG).show();
                                                     }
                                                 }
                                             });
@@ -265,50 +270,25 @@ public class ProfileFragment extends Fragment {
     }
 
     private void popUpProfile(final User user){
-
         LayoutInflater inflater = getLayoutInflater();
         View alertLayout = inflater.inflate(R.layout.pop_up_profile, null);
-        TextView name = alertLayout.findViewById(R.id.nameTextView);
-        TextView email = alertLayout.findViewById(R.id.emailTextView);
-        TextView id = alertLayout.findViewById(R.id.idTextView);
-        Button add = alertLayout.findViewById(R.id.addFriendButton);
-        final ProgressBar profileProgressBar = alertLayout.findViewById(R.id.profileProgressBar);
+        TextView name = alertLayout.findViewById(R.id.popupNameTextView);
+        TextView email = alertLayout.findViewById(R.id.popupEmailTextView);
+        TextView id = alertLayout.findViewById(R.id.popupIdTextView);
+        Button add = alertLayout.findViewById(R.id.popupAddFriendButton);
+        final ProgressBar profileProgressBar = alertLayout.findViewById(R.id.popupProgressBar);
+        CircleImageView popupCircleImageView = alertLayout.findViewById(R.id.popupCircleImageView);
 
-        name.setText(user.getName());
-        email.setText(user.getEmail());
-        id.setText(user.getId());
-        add.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                profileProgressBar.setVisibility(View.VISIBLE);
-                DocumentReference myReference = myContactsReference.document(user.getId());
-                final DocumentReference friendReference = usersFirebaseFirestore.document(user.getId())
-                        .collection("contacts").document(currentUser.getId());
-
-                myReference.set(user)
-                        .addOnCompleteListener(new OnCompleteListener<Void>() {
-                            @Override
-                            public void onComplete(@NonNull Task<Void> task) {
-                                if (task.isSuccessful()) {
-                                    friendReference.set(currentUser)
-                                            .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                                @Override
-                                                public void onSuccess(Void aVoid) {
-                                                    Toast.makeText(getActivity(), "AMIGO ADCIONADO", Toast.LENGTH_SHORT).show();
-                                                    profileProgressBar.setVisibility(View.GONE);
-                                                }
-                                            });
-                                } else {
-                                    Toast.makeText(getActivity(), task.getException().getMessage(), Toast.LENGTH_LONG).show();
-                                    profileProgressBar.setVisibility(View.GONE);
-                                }
-                            }
-                        });
-            }
-        });
+        // carrega a foto do usuario de houver
+        if(user.getPhotoUrl() != null){
+            Picasso.get()
+                    .load(user.getPhotoUrl())
+                    .into(popupCircleImageView);
+        }
+        // verifica se é o proprio usuario
         if(user.getId() == currentUser.getId())
             add.setVisibility(View.GONE);
+        // verifica se ja não é amigo
         for(User u :friendsList){
             if(user.getId().equals(u.getId()))
                 add.setVisibility(View.GONE);
@@ -317,8 +297,46 @@ public class ProfileFragment extends Fragment {
         AlertDialog.Builder alert = new AlertDialog.Builder(getActivity());
         alert.setView(alertLayout);
         alert.setCancelable(true);
-        AlertDialog dialog = alert.create();
+        final AlertDialog dialog = alert.create();
         dialog.show();
+
+        name.setText(user.getName());
+        email.setText(user.getEmail());
+        id.setText(user.getId());
+        add.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // add novo usuario a sua lista de contatos
+                profileProgressBar.setVisibility(View.VISIBLE);
+                DocumentReference myReference = myContactsReference.document(user.getId());
+                final DocumentReference friendReference = usersFirebaseFirestore.document(user.getId())
+                        .collection("contacts").document(currentUser.getId());
+
+                // add user a minha lista no bd
+                myReference.set(user)
+                        .addOnCompleteListener(new OnCompleteListener<Void>() {
+                            @Override
+                            public void onComplete(@NonNull Task<Void> task) {
+                                if (task.isSuccessful()) {
+                                    // add meu contato a lista do user
+                                    friendReference.set(currentUser)
+                                            .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                @Override
+                                                public void onSuccess(Void aVoid) {
+                                                    Toast.makeText(getActivity(), R.string.friend_edded, Toast.LENGTH_SHORT).show();
+                                                    profileProgressBar.setVisibility(View.GONE);
+                                                    dialog.dismiss();
+                                                }
+                                            });
+                                } else {
+                                    //Toast.makeText(getActivity(), task.getException().getMessage(), Toast.LENGTH_LONG).show();
+                                    profileProgressBar.setVisibility(View.GONE);
+                                    dialog.dismiss();
+                                }
+                            }
+                        });
+            }
+        });
     }
 
 }

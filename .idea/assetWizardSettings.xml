@@ -110,7 +110,7 @@
                                 <PersistentState>
                                   <option name="values">
                                     <map>
-                                      <entry key="url" value="jar:file:/E:/Projects/AndroidStudioProjects/Android/Android%20Studio/plugins/android/lib/android.jar!/images/material_design_icons/action/ic_work_black_24dp.xml" />
+                                      <entry key="url" value="jar:file:/E:/Projects/AndroidStudioProjects/Android/Android%20Studio/plugins/android/lib/android.jar!/images/material_design_icons/social/ic_person_add_black_24dp.xml" />
                                     </map>
                                   </option>
                                 </PersistentState>
@@ -120,7 +120,8 @@
                         </option>
                         <option name="values">
                           <map>
-                            <entry key="outputName" value="ic_work_24dp" />
+                            <entry key="color" value="ffffff" />
+                            <entry key="outputName" value="ic_person_add_24dp" />
                             <entry key="sourceFile" value="C:\Users\Thayllo\Downloads\physics_seamless_pattern_greenblue.svg" />
                           </map>
                         </option>

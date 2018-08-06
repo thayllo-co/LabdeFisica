@@ -25,14 +25,12 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
-import android.widget.ScrollView;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.github.mikephil.charting.charts.PieChart;
-import com.github.mikephil.charting.components.XAxis;
 import com.github.mikephil.charting.data.PieData;
 import com.github.mikephil.charting.data.PieDataSet;
 import com.github.mikephil.charting.data.PieEntry;
@@ -211,7 +209,7 @@ public class PieChartPicker extends Fragment implements View.OnClickListener{
             TableRow tableRow = new TableRow(getContext());
 
             for( int j=0; j <= items ; j++ ){
-                inputEditText = (EditText) getActivity().getLayoutInflater().inflate(R.layout.item_cell_editable, null);
+                inputEditText = (EditText) getActivity().getLayoutInflater().inflate(R.layout.item_cell, null);
                 inputEditText.setSelectAllOnFocus(true);
                 inputEditText.addTextChangedListener(new TextWatcher() {
                     @Override

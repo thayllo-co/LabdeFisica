@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     xmlns:tools="http://schemas.android.com/tools"
-    android:layout_margin="@dimen/default_margin"
+    android:padding="@dimen/default_margin"
     android:orientation="vertical">
 
     <RelativeLayout
@@ -13,35 +13,39 @@
 
         <ImageView
             android:id="@+id/imageView"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
             android:layout_alignParentLeft="true"
             android:layout_alignParentStart="true"
             android:layout_centerVertical="true"
-            android:layout_margin="@dimen/default_margin"
             android:adjustViewBounds="false"
             app:srcCompat="@drawable/ic_report" />
 
-        <TextView
-            android:id="@+id/reportTitleTextView"
+        <RelativeLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignTop="@+id/imageView"
             android:layout_toRightOf="@+id/imageView"
-            android:lines="1"
-            android:textAppearance="?android:attr/textAppearanceLarge"
-            tools:text="Relatório" />
+            android:layout_centerInParent="true"
+            android:layout_toEndOf="@+id/imageView">
 
-        <TextView
-            android:id="@+id/reportSubtitleTextView"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/reportTitleTextView"
-            android:layout_alignLeft="@+id/reportTitleTextView"
-            android:textAppearance="?android:attr/textAppearanceSmall"
-            tools:text="subtitulo"
-            android:layout_alignStart="@+id/reportTitleTextView" />
+            <TextView
+                android:id="@+id/reportTitleTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:lines="1"
+                android:textAppearance="?android:attr/textAppearanceLarge"
+                tools:text="Relatório" />
 
+            <TextView
+                android:id="@+id/reportSubtitleTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/reportTitleTextView"
+                android:layout_alignLeft="@+id/reportTitleTextView"
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                tools:text="Participantes"
+                android:layout_alignStart="@+id/reportTitleTextView" />
+        </RelativeLayout>
 
     </RelativeLayout>
 

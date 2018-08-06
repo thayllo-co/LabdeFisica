@@ -38,7 +38,6 @@ import java.util.Calendar;
 
 import br.thayllo.labdefisica.R;
 import br.thayllo.labdefisica.adapter.TabAdapter;
-import br.thayllo.labdefisica.fragment.ReportFragment;
 import br.thayllo.labdefisica.model.Attachment;
 import br.thayllo.labdefisica.model.AttachmentType;
 import br.thayllo.labdefisica.model.Report;
@@ -295,7 +294,5 @@ public class ReportEditor extends AppCompatActivity implements OnSuccessListener
         AlertDialog choicesDialog = choicesBuilder.create();
         choicesDialog.show();
     }
-
-
 
 }

@@ -14,7 +14,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center"
-            android:paddingTop="@dimen/default_margin"
+            android:paddingTop="@dimen/activity_vertical_margin"
             android:stretchColumns="0,1">
 
             <TableRow

@@ -37,9 +37,9 @@ public class User {
 
     @Override
     public String toString() {
-        return "id=" + id +
-                "\nname=" + name +
+        return "name=" + name +
+                "\nid=" + id +
                 "\nemail=" + email +
-                "\nurl=" + photoUrl;
+                "\nphotoUrl=" + photoUrl;
     }
 }

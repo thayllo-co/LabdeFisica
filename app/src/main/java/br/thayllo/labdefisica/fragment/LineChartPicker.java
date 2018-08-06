@@ -25,7 +25,6 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
-import android.widget.ScrollView;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
@@ -256,7 +255,7 @@ public class LineChartPicker extends Fragment implements View.OnClickListener {
 
             for( int j=0; j <= columns ; j++ ){
 
-                inputEditText = (EditText) getActivity().getLayoutInflater().inflate(R.layout.item_cell_editable, null);
+                inputEditText = (EditText) getActivity().getLayoutInflater().inflate(R.layout.item_cell, null);
                 inputEditText.setSelectAllOnFocus(true);
                 inputEditText.addTextChangedListener(new TextWatcher() {
                     @Override

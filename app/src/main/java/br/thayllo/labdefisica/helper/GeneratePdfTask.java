@@ -10,7 +10,6 @@ import android.os.Environment;
 import android.view.View;
 import android.widget.Toast;
 
-import com.github.barteksc.pdfviewer.PDFView;
 import com.itextpdf.text.BadElementException;
 import com.itextpdf.text.Chunk;
 import com.itextpdf.text.Document;
@@ -48,7 +47,6 @@ public class GeneratePdfTask extends AsyncTask<ArrayList<Attachment>, Integer, U
     private ProgressDialog progressDialog;
     private Report currentReport;
     private Context context;
-    private PDFView pdfView;
 
     public GeneratePdfTask(Context context, Report currentReport) {
         super();
@@ -187,15 +185,14 @@ public class GeneratePdfTask extends AsyncTask<ArrayList<Attachment>, Integer, U
     @Override
     protected void onPostExecute(Uri uri) {
         super.onPostExecute(uri);
+
         progressDialog.dismiss();
-        /*pdfView.fromUri(uri)
-                .spacing(5)
-                .load();
-        pdfView.setVisibility(View.VISIBLE);*/
+
         PackageManager packageManager = context.getPackageManager();
         Intent testIntent = new Intent(Intent.ACTION_VIEW);
         testIntent.setType("application/pdf");
         List list = packageManager.queryIntentActivities(testIntent, PackageManager.MATCH_DEFAULT_ONLY);
+
         if (list.size() > 0) {
             Intent intent = new Intent();
             intent.setAction(Intent.ACTION_VIEW);

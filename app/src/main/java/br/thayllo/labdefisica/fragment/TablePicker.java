@@ -224,7 +224,7 @@ public class TablePicker extends Fragment implements View.OnClickListener {
 
             for( int j=0; j <= columns ; j++ ){
 
-                inputEditText = (EditText) getActivity().getLayoutInflater().inflate(R.layout.item_cell_editable, null);
+                inputEditText = (EditText) getActivity().getLayoutInflater().inflate(R.layout.item_cell, null);
 
                 if( i == 0 && j == 0 ){
                     // primeira celula que não serve pra nada

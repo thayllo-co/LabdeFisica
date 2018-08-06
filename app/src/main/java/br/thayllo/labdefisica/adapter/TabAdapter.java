@@ -1,10 +1,12 @@
 package br.thayllo.labdefisica.adapter;
 
 import android.app.Activity;
+import android.content.res.Resources;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 
+import br.thayllo.labdefisica.R;
 import br.thayllo.labdefisica.fragment.AttachmentList;
 
 public class TabAdapter extends FragmentStatePagerAdapter {

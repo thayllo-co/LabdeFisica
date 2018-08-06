@@ -14,9 +14,9 @@ import br.thayllo.labdefisica.R;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class LaboratoryFragment extends Fragment implements View.OnClickListener{
+public class Laboratory extends Fragment implements View.OnClickListener{
 
-    public LaboratoryFragment() {
+    public Laboratory() {
         // Required empty public constructor
     }
 
@@ -48,13 +48,11 @@ public class LaboratoryFragment extends Fragment implements View.OnClickListener
 
     public void LaboratoryUnavailable() {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        builder.setTitle("ALERTA!");
-        builder.setPositiveButton("Entendi :)", null);
-        builder.setMessage("Este modulo não esta disponível\n" +
-                "Estamos trabalhando para que você possa acessá-lo breve");
+        builder.setTitle("Alerta");
+        builder.setIcon(R.drawable.ic_warning);
+        builder.setPositiveButton("Entendi", null);
+        builder.setMessage("Conteúdo ainda não disponível");
         AlertDialog msg = builder.create();
         msg.show();
     }
-
-
 }
