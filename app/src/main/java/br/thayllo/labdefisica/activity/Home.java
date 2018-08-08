@@ -45,10 +45,6 @@ public class Home extends AppCompatActivity implements BottomNavigationView.OnNa
             Manifest.permission.INTERNET
     };
     private static final int RC_SIGN_IN = 123;
-    List<AuthUI.IdpConfig> providers = Arrays.asList(
-            new AuthUI.IdpConfig.EmailBuilder().build(),
-            new AuthUI.IdpConfig.GoogleBuilder().build(),
-            new AuthUI.IdpConfig.FacebookBuilder().build());
 
     private User mainUser;
     private Preferences preferences;
@@ -86,8 +82,11 @@ public class Home extends AppCompatActivity implements BottomNavigationView.OnNa
                                     .createSignInIntentBuilder()
                                     .setIsSmartLockEnabled(false)
                                     .setLogo(R.drawable.ic_logo)
-                                    .setTheme(R.style.LoginTheme)
-                                    .setAvailableProviders(providers)
+                                    .setTheme(R.style.FirebaseUI)
+                                    .setAvailableProviders(Arrays.asList(
+                                            new AuthUI.IdpConfig.GoogleBuilder().build(),
+                                            new AuthUI.IdpConfig.FacebookBuilder().build(),
+                                            new AuthUI.IdpConfig.EmailBuilder().build()))
                                     .build(),
                             RC_SIGN_IN);
                 }

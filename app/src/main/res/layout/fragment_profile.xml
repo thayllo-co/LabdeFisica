@@ -5,7 +5,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".fragment.ProfileFragment">
+    tools:context=".fragment.Profile">
 
     <RelativeLayout
         android:layout_width="match_parent"
@@ -17,7 +17,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:theme="@style/AppTheme.AppBarOverlay"
-            android:background="@color/fui_transparent"
+            android:background="@color/transparent"
             app:elevation="0dp">
 
             <android.support.v7.widget.Toolbar
@@ -25,7 +25,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="100dp"
                 app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
-                android:background="@color/fui_transparent"
+                android:background="@color/transparent"
                 android:theme="@style/AppTheme.AppBarOverlay"
                 app:titleTextColor="@android:color/white"
                 app:subtitleTextColor="@android:color/white"/>

@@ -36,6 +36,7 @@ import com.google.firebase.firestore.QuerySnapshot;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Iterator;
 import java.util.List;
 
 import br.thayllo.labdefisica.R;
@@ -79,7 +80,7 @@ public class ReportList extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        View view =  inflater.inflate(R.layout.fragment_report, container, false);
+        View view =  inflater.inflate(R.layout.fragment_report_list, container, false);
 
         reportHeaderTextView = view.findViewById(R.id.reportHeaderTextView);
         repostsListView = view.findViewById(R.id.reportsListView);
@@ -113,21 +114,23 @@ public class ReportList extends Fragment {
                                     switch (doc.getType()) {
                                         case ADDED:
                                             reportList.add(doc.getDocument().toObject(Report.class));
+                                            reportsAdapter.notifyDataSetChanged();
                                             break;
                                         case MODIFIED:
                                             report = doc.getDocument().toObject(Report.class);
                                             for (Report r : reportList){
                                                 if(r.getReportId().equals(report.getReportId())){
                                                     reportList.get(reportList.indexOf(r)).setReportTitle(report.getreportTitle());
+                                                    reportsAdapter.notifyDataSetChanged();
                                                 }
                                             }
                                             break;
                                         case REMOVED:
                                             report = doc.getDocument().toObject(Report.class);
-                                            for (Report r : reportList){
-                                                if(r.getReportId().equals(report.getReportId())){
-                                                    reportList.remove(r);
-                                                }
+                                            Iterator<Report> a = reportList.iterator();
+                                            while(a.hasNext()){
+                                                if(a.next().getReportId().equals(report.getReportId()))
+                                                    a.remove();
                                             }
                                             break;
                                     }

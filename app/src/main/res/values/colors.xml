@@ -17,6 +17,7 @@
     <color name="teste">#96cdb9</color>
     <color name="lightGray">#c7c7c7</color>
     <color name="white">#ffffff</color>
+    <color name="transparent">#00000000</color>
 
     <color name="textColorPrimay">#464646</color>
     <color name="textColorSecondary">#7c7c7c</color>

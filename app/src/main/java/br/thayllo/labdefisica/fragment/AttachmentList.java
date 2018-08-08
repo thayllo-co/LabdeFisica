@@ -30,6 +30,7 @@ import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.storage.StorageReference;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 
 import br.thayllo.labdefisica.R;
 import br.thayllo.labdefisica.adapter.AttachmentAdapter;
@@ -99,21 +100,16 @@ public class AttachmentList extends Fragment {
                             switch (doc.getType()) {
                                 case ADDED:
                                     tabContentList.add(doc.getDocument().toObject(Attachment.class));
+                                    attachmentsAdapter.notifyDataSetChanged();
                                     break;
-                                case MODIFIED:
-                                    /*attachment = doc.getDocument().toObject(Attachment.class);
-                                    for (Attachment a : tabContentList){
-                                        if(a.getId().equals(attachment.getId())){
-                                            tabContentList.get(tabContentList.indexOf(a));
-                                        }
-                                    }*/
+                                case MODIFIED: // ainda não é possivel modificar os anexos
                                     break;
                                 case REMOVED:
                                     attachment = doc.getDocument().toObject(Attachment.class);
-                                    for (Attachment a : tabContentList){
-                                        if(a.getId().equals(attachment.getId())){
-                                            tabContentList.remove(a);
-                                        }
+                                    Iterator<Attachment> a = tabContentList.iterator();
+                                    while(a.hasNext()){
+                                        if(a.next().getId().equals(attachment.getId()))
+                                            a.remove();
                                     }
                                     break;
                             }

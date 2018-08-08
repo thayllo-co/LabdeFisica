@@ -6,12 +6,14 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -19,13 +21,18 @@ import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.Continuation;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.EventListener;
+import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.storage.OnProgressListener;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
@@ -46,8 +53,7 @@ import br.thayllo.labdefisica.settings.FirebasePreferences;
 import br.thayllo.labdefisica.settings.Preferences;
 import br.thayllo.labdefisica.helper.SlidingTabLayout;
 
-public class ReportEditor extends AppCompatActivity implements OnSuccessListener<UploadTask.TaskSnapshot>,
-        OnProgressListener<UploadTask.TaskSnapshot>, OnFailureListener{
+public class ReportEditor extends AppCompatActivity implements OnSuccessListener<Uri>, OnFailureListener{
 
     private static final int RC_TEXT_PICKER = 10;
     private static final int RC_TABLE_PICKER = 30;
@@ -71,6 +77,7 @@ public class ReportEditor extends AppCompatActivity implements OnSuccessListener
     private CollectionReference currentTabFirebaseFirestore;
     private DocumentReference attachmentReference;
     private DocumentReference currentReportReference;
+    private StorageReference imageRef;
 
 
     @Override
@@ -182,22 +189,43 @@ public class ReportEditor extends AppCompatActivity implements OnSuccessListener
 
             } else if (requestCode == CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE ){
 
+                progressDialog.show();
                 CropImage.ActivityResult result = CropImage.getActivityResult(data);
                 Uri selectedImageUri = result.getUri();
-                StorageReference photoRef = mReportPicsStorageReference.child(attach.getId());
-                photoRef.putFile(selectedImageUri)
-                        .addOnSuccessListener(this, this)
-                        .addOnProgressListener(this)
+                UploadTask uploadTask = imageRef.putFile(selectedImageUri);
+                uploadTask
+                        .continueWithTask(new Continuation<UploadTask.TaskSnapshot, Task<Uri>>() {
+                            @Override
+                            public Task<Uri> then(@NonNull Task<UploadTask.TaskSnapshot> task) throws Exception {
+                                if (!task.isSuccessful()) {
+                                    throw task.getException();
+                                }
+                                // Continue with the task to get the download URL
+                                return imageRef.getDownloadUrl();
+                            }
+                        })
+                        .addOnSuccessListener(this)
                         .addOnFailureListener(this);
 
             } else if ( requestCode == RC_TABLE_PICKER || requestCode == RC_LINE_CHART_PICKER
                     || requestCode == RC_BAR_CHART_PICKER || requestCode == RC_PIE_CHART_PICKER ){
 
+                progressDialog.show();
                 byte[] bytes = data.getByteArrayExtra("result");
-                StorageReference photoRef = mReportPicsStorageReference.child( attach.getId() );
-                photoRef.putBytes( bytes )
+                imageRef = mReportPicsStorageReference.child( attach.getId() );
+                UploadTask uploadTask = imageRef.putBytes( bytes );
+                uploadTask
+                        .continueWithTask(new Continuation<UploadTask.TaskSnapshot, Task<Uri>>() {
+                            @Override
+                            public Task<Uri> then(@NonNull Task<UploadTask.TaskSnapshot> task) throws Exception {
+                                if (!task.isSuccessful()) {
+                                    throw task.getException();
+                                }
+                                // Continue with the task to get the download URL
+                                return imageRef.getDownloadUrl();
+                            }
+                        })
                         .addOnSuccessListener(this)
-                        .addOnProgressListener(this)
                         .addOnFailureListener(this);
 
             }
@@ -206,21 +234,11 @@ public class ReportEditor extends AppCompatActivity implements OnSuccessListener
 
     // metodo que confirma de o arquivo foi armazenado no FirebaseStorage
     @Override
-    public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-        Uri downloadUrl = taskSnapshot.getDownloadUrl();
+    public void onSuccess(Uri uri) {
         attach.setName( currentUser.getName() );
-        attach.setPhotoUrl( downloadUrl.toString() );
+        attach.setPhotoUrl( uri.toString() );
         addAttachment();
         progressDialog.dismiss();
-    }
-
-    // metodo exibe e esxonde a ProgressBar
-    @Override
-    public void onProgress(UploadTask.TaskSnapshot taskSnapshot) {
-        progressDialog.show();
-        /*long transferred = taskSnapshot.getBytesTransferred();
-        long total = taskSnapshot.getTotalByteCount();
-        viewPagerProgressBar.setVisibility( transferred < total ? View.VISIBLE : View.GONE);*/
     }
 
     // caso ocorra alguma falha desabilita a ProgressBar
@@ -294,5 +312,6 @@ public class ReportEditor extends AppCompatActivity implements OnSuccessListener
         AlertDialog choicesDialog = choicesBuilder.create();
         choicesDialog.show();
     }
+
 
 }

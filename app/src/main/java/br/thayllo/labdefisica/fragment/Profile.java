@@ -28,6 +28,7 @@ import android.widget.Toast;
 
 import com.firebase.ui.auth.AuthUI;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.CollectionReference;
@@ -35,12 +36,14 @@ import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 
 import br.thayllo.labdefisica.R;
 import br.thayllo.labdefisica.activity.Home;
@@ -128,21 +131,16 @@ public class Profile extends Fragment {
                             switch (doc.getType()) {
                                 case ADDED:
                                     friendsList.add(doc.getDocument().toObject(User.class));
+                                    friendsAdapter.notifyDataSetChanged();
                                     break;
-                                case MODIFIED: //implementado tratamento mas não seu uso ainda
-                                    user = doc.getDocument().toObject(User.class);
-                                    for (User u : friendsList){
-                                        if(u.getId().equals(user.getId())){
-                                            friendsList.get(friendsList.indexOf(u)).setName(user.getName());
-                                        }
-                                    }
+                                case MODIFIED: // ainda não é possivel modificar contatos
                                     break;
                                 case REMOVED: //implementado tratamento mas não seu uso ainda
                                     user = doc.getDocument().toObject(User.class);
-                                    for (User u : friendsList){
-                                        if(u.getId().equals(user.getId())){
-                                            friendsList.remove(u);
-                                        }
+                                    Iterator<User> a = friendsList.iterator();
+                                    while(a.hasNext()){
+                                        if(a.next().getId().equals(user.getId()))
+                                            a.remove();
                                     }
                                     break;
                             }
@@ -159,6 +157,48 @@ public class Profile extends Fragment {
             }
         });
 
+        //Adicionar evento de clique longo na lista para excluir o amigo selecionado
+        friendsListView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+            @Override
+            public boolean onItemLongClick(AdapterView<?> parent, View view, final int position, long id) {
+
+                // referencia para remover do banco
+                final DocumentReference friend = myContactsReference.document(friendsList.get(position).getId());
+
+                // AlertDialog para confirmar a exclusão
+                new AlertDialog.Builder(getActivity())
+                        .setTitle(R.string.delete)
+                        .setIcon( R.drawable.ic_warning)
+                        .setMessage(R.string.sure_to_delete_content)
+                        .setPositiveButton(R.string.delete, new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                // remove o anexo da lista
+                                friend.delete()
+                                        .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                            @Override
+                                            public void onSuccess(Void aVoid) {
+                                                Toast.makeText(getContext(), R.string.deleted, Toast.LENGTH_LONG).show();
+                                            }
+                                        })
+                                        .addOnFailureListener(new OnFailureListener() {
+                                            @Override
+                                            public void onFailure(@NonNull Exception e) {
+                                                Toast.makeText(getContext(),R.string.delete_error, Toast.LENGTH_SHORT).show();
+                                            }
+                                        });
+                            }
+                        })
+                        .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                // User cancelled the dialog
+                            }
+                        })
+                        .create()
+                        .show();
+
+                return true;
+            }
+        });
         return view;
     }
 
@@ -286,7 +326,7 @@ public class Profile extends Fragment {
                     .into(popupCircleImageView);
         }
         // verifica se é o proprio usuario
-        if(user.getId() == currentUser.getId())
+        if(user.getId().equals(currentUser.getId()))
             add.setVisibility(View.GONE);
         // verifica se ja não é amigo
         for(User u :friendsList){
