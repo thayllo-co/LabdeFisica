@@ -2,7 +2,8 @@
     <string name="app_name">Lab. de Física</string>
 
     <string name="sign_out">Sair</string>
-    <string name="help_report">Como Fazer Seu Relatório</string>
+    <!--<string name="help_report">Como Fazer Seu Relatório</string>-->
+    <string name="help_report">Ajuda nos Relatórios</string>
     <string name="physics1">Física I</string>
     <string name="physics2">Física II</string>
     <string name="physics3">Física III</string>

@@ -1,6 +1,7 @@
 package br.thayllo.labdefisica.fragment;
 
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
@@ -10,6 +11,8 @@ import android.view.ViewGroup;
 import android.widget.LinearLayout;
 
 import br.thayllo.labdefisica.R;
+import br.thayllo.labdefisica.activity.HelpReport;
+import br.thayllo.labdefisica.activity.ReportEditor;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -32,7 +35,13 @@ public class Laboratory extends Fragment implements View.OnClickListener{
         LinearLayout lab3Layout = view.findViewById(R.id.lab3Layout);
         LinearLayout lab4Layout = view.findViewById(R.id.lab4Layout);
 
-        lab0Layout.setOnClickListener(this);
+        lab0Layout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent( getActivity(), HelpReport.class);
+                startActivity(intent);
+            }
+        });
         lab1Layout.setOnClickListener(this);
         lab2Layout.setOnClickListener(this);
         lab3Layout.setOnClickListener(this);

@@ -1,0 +1,188 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".activity.HelpReport">
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:padding="@dimen/default_margin">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical" >
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Relatório"
+                android:gravity="center"
+                android:textColor="@android:color/black"
+                android:textSize="20sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Existem diversas formas de avaliar o aluno, em geral, a prova é o método mais usado para tentar obter o grau de aprendizado, em um dado conteúdo, de um aluno. Avaliar é uma forma que o professor tem para estimar o desenvolvimento do seu aluno e nos laboratórios de física isso não é diferente. O que se nota de diferente é que nas disciplinas experimentais é mais comum os professores avaliarem o seu aluno através de relatórios onde ele possa descrever o que foi realizado em tal atividade."
+                android:textColor="@android:color/black"
+                android:textSize="14sp" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Um bom relatório traz em pauta a discussão e debates do que foi observado em experiências executadas metodicamente, ou seja, desperta os questionamentos e motiva a postura investigativa sobre os vários assuntos que envolvem a nossa existência."
+                android:textColor="@android:color/black"
+                android:textSize="14sp" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Sendo assim, podemos afirmar que, a realização de um bom experimento dar a possibilidade de escrever um bom relatório já́ que se possui os dados necessários para tal fato. Além disso, podemos dizer que um bom relatório geralmente segue algumas normas padronizadas pela comunidade científica, ou seja, possui alguns itens que conseguem expor com mais clareza toda a atividade experimental. Abaixo apresentamos os tópicos que podem ajudar a construir um bom relatório:"
+                android:textColor="@android:color/black"
+                android:textSize="14sp" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="1. Capa"
+                android:textColor="@android:color/black"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="É importante conter o nome da instituição de ensino, o título do experimento, nome do aluno, turma, nome do professor e local/data."
+                android:textColor="@android:color/black"
+                android:textSize="14sp" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="2. Sumário"
+                android:textColor="@android:color/black"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Deve conter a numeração das páginas dos itens principal do trabalho, ou seja, os itens abaixo relacionados."
+                android:textColor="@android:color/black"
+                android:textSize="14sp" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="3. Objetivo"
+                android:textColor="@android:color/black"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Deve ser escrito com poucas palavras. Seja claro e sucinto ao falar do trabalho realizado e do método experimental empregado. A ideia é apresentar rapidamente o trabalho e assim fazer com que qualquer pessoa que leia, saiba do que se trata e decida se o conteúdo o interessa ou não. Use no máximo 12 linhas."
+                android:textColor="@android:color/black"
+                android:textSize="14sp" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="4. Resumo"
+                android:textColor="@android:color/black"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text=" Também conhecido como Abstracts em inglês, o resumo é a apresentação concisa do texto, destacando os aspectos mais relevantes e de maior interesse. Aqui, o conteúdo é apresentado em forma reduzida e deve ser escrito em um único parágrafo contendo a introdução, metodologia, resultados e conclusões. Tais palavras não devem ser escritas no texto, mas é importante que essa sequência seja obedecida."
+                android:textColor="@android:color/black"
+                android:textSize="14sp" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="5. Introdução Teórica"
+                android:textColor="@android:color/black"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Falar da motivação de realizar tal trabalho é um ponto fundamental nesta seção. Além disso, é importante fazer uma uma revisão histórica do assunto mencionando os trabalhos de maior relevância, revisar de forma concisa o conteúdo abordado e apresentar os modelos matemáticos pertinente, mas sem a apresentação detalhada do desenvolvimento matemático empregado. Nesta seção as considerações gerais, também podem ser discutidas."
+                android:textColor="@android:color/black"
+                android:textSize="14sp" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="6. Procedimento Experimental"
+                android:textColor="@android:color/black"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Aqui percebemos claramente a importância de se executar cautelosamente o experimento e anotar passo a passo do que foi executado, pois, nesta seção, a montagem experimental utilizada e os procedimentos adotados deverão ser bem descritos afim de que não haja dúvidas. Pode-se fazer uso de esquemas que facilitem a interpretação e a montagem e que fique claro o suficiente para que o leitor possa repetir a experiência, caso o desejar."
+                android:textColor="@android:color/black"
+                android:textSize="14sp" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="7. Resultados e Discussões"
+                android:textColor="@android:color/black"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Esta é a seção onde se apresenta e discute todos os resultados. Os dados colhidos e obtidos no experimento podem ser expostos em forma de tabela, gráficos e figuras afins de que facilite o entendimento do conteúdo e traga organização para o trabalho. Fique atento para não se esquecer das unidades, seja no decorrer do texto ou nas tabelas e gráficos. Discuta os resultados experimentais obtidos comparando-os com os dados teóricos já existentes na literatura. Observe as discordância e/ou concordância existentes entre os trabalhos e tente explicar os motivos que levaram a tal fato. Uma boa discussão traz ao aluno um excelente embasamento teórico."
+                android:textColor="@android:color/black"
+                android:textSize="14sp" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="8. Conclusão"
+                android:textColor="@android:color/black"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="O trabalho deve ser finalizado com uma excelente conclusão. Mostre a importância daquilo que foi feito e se isso trouxe alguma informação nova. Argumente seus resultados independentemente do que é esperado. Nesta seção, pode-se, também, fazer uma avaliação do método experimental utilizado e sugerir novos tipos de medidas ou aprimoramento do método empregado, caso ache necessário."
+                android:textColor="@android:color/black"
+                android:textSize="14sp" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="9. Referências bibliográficas"
+                android:textColor="@android:color/black"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="A bibliografia consultada, para realizar o trabalho, deve ser escrita de acordo com a origem da fonte. Abaixo apresentamos os tipos prováveis de bibliografias que podem ser consultadas e como elas devem ser apresentadas nesta seção:\n(a) Livros: SOBRENOME, NOME abreviado. Título: subtítulo (se houver). Edição (se houver). Local de publicação: Editora, data de publicação da obra. no de páginas ou volume. (Coleção ou série).\n(b) Artigo de periódico: SOBRENOME, NOME abreviado; Título: subtítulo (se houver). Nome do periódico, Local de publicação, volume, número ou fascículo, paginação, data de publicação do periódico.\n(c) Documento publicado na internet: AUTOR(ES). Título: subtítulo (se houver) disponível em: &lt;endereço da url&gt;. Data de acesso."
+                android:textColor="@android:color/black"
+                android:textSize="14sp" />
+
+        </LinearLayout>
+    </ScrollView>
+
+</android.support.constraint.ConstraintLayout>
