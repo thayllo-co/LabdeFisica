@@ -39,7 +39,7 @@
             android:layout_below="@+id/profileAppBarLayout"
             android:background="@color/colorSecondary"
             android:layout_alignParentLeft="true"
-            android:layout_alignBottom="@+id/userIdProfileTextView">
+            android:layout_alignBottom="@+id/userEmailProfileTextView">
         </FrameLayout>
 
         <TextView
@@ -64,19 +64,8 @@
             android:text="e-mail"
             android:textColor="#fff"
             android:textSize="12sp"
-            android:layout_toRightOf="@+id/profileCircleImageView" />
-
-        <TextView
-            android:id="@+id/userIdProfileTextView"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/userEmailProfileTextView"
-            android:layout_marginLeft="@dimen/default_margin"
-            android:layout_toEndOf="@+id/profileCircleImageView"
-            android:text="id"
-            android:textColor="#fff"
-            android:textSize="10sp"
-            android:layout_toRightOf="@+id/profileCircleImageView" />
+            android:layout_toRightOf="@+id/profileCircleImageView"
+            android:paddingBottom="@dimen/default_margin"/>
 
         <de.hdodenhof.circleimageview.CircleImageView
             xmlns:app="http://schemas.android.com/apk/res-auto"

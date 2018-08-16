@@ -11,6 +11,7 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.text.InputType;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -21,8 +22,11 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.FrameLayout;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.ProgressBar;
+import android.widget.TableLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -68,7 +72,6 @@ public class Profile extends Fragment {
     private ArrayAdapter friendsAdapter;
     private ArrayList<User> friendsList;
     private Toolbar profileToolbar;
-    private TextView userIdProfileTextView;
     private CircleImageView profileCircleImageView;
     private CollectionReference usersFirebaseFirestore = FirebasePreferences.getFirebaseFirestore()
             .collection("users");
@@ -85,7 +88,6 @@ public class Profile extends Fragment {
 
         userNameTextView = view.findViewById(R.id.userNameProfileTextView);
         userEmailTextView = view.findViewById(R.id.userEmailProfileTextView);
-        userIdProfileTextView = view.findViewById(R.id.userIdProfileTextView);
         friendsListView = view.findViewById(R.id.friendsListView);
         profileToolbar = view.findViewById(R.id.profileToolbar);
         profileCircleImageView = view.findViewById(R.id.profileCircleImageView);
@@ -100,7 +102,6 @@ public class Profile extends Fragment {
 
         userNameTextView.setText(currentUser.getName());
         userEmailTextView.setText(currentUser.getEmail());
-        userIdProfileTextView.setText(currentUser.getId());
 
         // carrega foto do perfil
         if(currentUser.getPhotoUrl() != null){
@@ -257,12 +258,21 @@ public class Profile extends Fragment {
     }
 
     private void searchProfileDialog(){
+
+        LinearLayout container = new LinearLayout(getActivity());
+        container.setOrientation(LinearLayout.VERTICAL);
+        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,LinearLayout.LayoutParams.WRAP_CONTENT);
+        lp.setMargins(20,0,20,0);
         final EditText editText = new EditText(getActivity());
-        editText.setHint(R.string.email_tip);
+        editText.setLines(1);
+        editText.setMaxLines(1);
+        container.addView(editText,lp);
+
         new AlertDialog.Builder(getActivity())
                 .setTitle(R.string.new_contact)
                 .setCancelable(false)
-                .setView(editText)
+                .setMessage(R.string.email_tip)
+                .setView(container)
                 .setPositiveButton(R.string.search_for,
                         new DialogInterface.OnClickListener() {
                             @Override
@@ -314,7 +324,6 @@ public class Profile extends Fragment {
         View alertLayout = inflater.inflate(R.layout.pop_up_profile, null);
         TextView name = alertLayout.findViewById(R.id.popupNameTextView);
         TextView email = alertLayout.findViewById(R.id.popupEmailTextView);
-        TextView id = alertLayout.findViewById(R.id.popupIdTextView);
         Button add = alertLayout.findViewById(R.id.popupAddFriendButton);
         final ProgressBar profileProgressBar = alertLayout.findViewById(R.id.popupProgressBar);
         CircleImageView popupCircleImageView = alertLayout.findViewById(R.id.popupCircleImageView);
@@ -342,7 +351,6 @@ public class Profile extends Fragment {
 
         name.setText(user.getName());
         email.setText(user.getEmail());
-        id.setText(user.getId());
         add.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

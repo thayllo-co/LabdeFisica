@@ -9,5 +9,7 @@
     android:minEms="3"
     android:padding="10dp"
     android:singleLine="true"
-    android:inputType="textNoSuggestions">
+    android:maxLines="1"
+    android:lines="1"
+    android:inputType="textNoSuggestions|textCapSentences">
 </EditText>
