@@ -73,6 +73,7 @@ public class Profile extends Fragment {
     private ArrayList<User> friendsList;
     private Toolbar profileToolbar;
     private CircleImageView profileCircleImageView;
+    private LinearLayout profileLinearLayout;
     private CollectionReference usersFirebaseFirestore = FirebasePreferences.getFirebaseFirestore()
             .collection("users");
 
@@ -91,6 +92,7 @@ public class Profile extends Fragment {
         friendsListView = view.findViewById(R.id.friendsListView);
         profileToolbar = view.findViewById(R.id.profileToolbar);
         profileCircleImageView = view.findViewById(R.id.profileCircleImageView);
+        profileLinearLayout = view.findViewById(R.id.profileLinearLayout);
 
         // configura o ActionBar
         setHasOptionsMenu(true);
@@ -148,6 +150,10 @@ public class Profile extends Fragment {
 
                             friendsAdapter.notifyDataSetChanged();
                         }
+                        if(friendsList.size() < 1)
+                            profileLinearLayout.setVisibility(View.VISIBLE);
+                        else
+                            profileLinearLayout.setVisibility(View.GONE);
                     }
                 });
 

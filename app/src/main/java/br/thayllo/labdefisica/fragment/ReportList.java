@@ -65,6 +65,8 @@ public class ReportList extends Fragment {
     private TextView emptyReportListTextView;
     private TextView reportHeaderTextView;
     private Report selectedReport;
+    private List<User> friendsList;
+    private List<String> friendsDialogList;
 
     private CollectionReference reportsReference = FirebasePreferences.getFirebaseFirestore()
             .collection("reports");
@@ -150,6 +152,25 @@ public class ReportList extends Fragment {
                             }
                         }
                 );
+
+        friendsList = new ArrayList<>();
+        friendsDialogList = new ArrayList<>();
+        // carrega a lista de amigos do usuario
+        myContactsReference
+                .orderBy("name", Query.Direction.ASCENDING)
+                .addSnapshotListener(getActivity(), new EventListener<QuerySnapshot>() {
+                    @Override
+                    public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException e) {
+                        if (e != null) {
+                            return;
+                        }
+                        for(DocumentSnapshot doc : queryDocumentSnapshots){
+                            User u  = doc.toObject(User.class);
+                            friendsList.add(u);
+                            friendsDialogList.add(u.getName());
+                        }
+                    }
+                });
 
         // abre o relatorio selecionado
         repostsListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -296,26 +317,23 @@ public class ReportList extends Fragment {
     }
 
     private void addGroupReport(final String reportTitle){
-        final List<User> friendsList = new ArrayList<>();
-        // carrega a lista de amigos do usuario
-        myContactsReference
-                .orderBy("name", Query.Direction.ASCENDING)
-                .addSnapshotListener(getActivity(), new EventListener<QuerySnapshot>() {
-                    @Override
-                    public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException e) {
-                        if (e != null) {
-                            return;
-                        }
-                        List<String> friendsDialogList = new ArrayList<>();
-                        for(DocumentSnapshot doc : queryDocumentSnapshots){
-                            User u  = doc.toObject(User.class);
-                            friendsList.add(u);
-                            friendsDialogList.add(u.getName());
-                        }
-                        pickFriendsDialog(reportTitle, friendsDialogList.toArray(new CharSequence[friendsDialogList.size()]),
-                                friendsList);
-                    }
-                });
+        if( friendsList.size() > 0){
+            pickFriendsDialog(reportTitle, friendsDialogList.toArray(new CharSequence[friendsDialogList.size()]), friendsList);
+        } else {
+            new AlertDialog.Builder(getActivity())
+                    .setTitle("Alerta")
+                    .setIcon(R.drawable.ic_warning)
+                    .setMessage( "Você não possui amigos, adicione novos amigos em seu perfil.")
+                    .setPositiveButton("OK",
+                            new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+
+                                }
+                            })
+                    .create()
+                    .show();
+        }
     }
 
     private void pickFriendsDialog(final String reportTitle, CharSequence[] charSequence, final List<User> users){
@@ -339,54 +357,56 @@ public class ReportList extends Fragment {
                         new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
-                                // cria um novo relatorio cos os usuarios selecionados na dialog
-                                Calendar calendar = Calendar.getInstance();
-                                SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd-HH:mm:ss.SSS");
-                                String stringDate = dateFormat.format(calendar.getTime());
-                                // prepara a lista de usuarios do relatorio
-                                final ArrayList<User> reportMembers = new ArrayList<>();
-                                users.add(currentUser); // add o currentUser ao relatorio tbm
-                                seletedItems.add(users.size()-1);
-                                for (int i = 0 ; i < seletedItems.size() ; i++){ // amigos que foram selecionados
-                                    reportMembers.add(users.get(seletedItems.get(i)));
-                                }
-                                // string com o nome de todos os usuarios do report
-                                String s = "";
-                                for(int i=0 ; i < reportMembers.size() ; i++){
-                                    s += reportMembers.get(i).getName();
-                                    if(i == reportMembers.size()-1)
-                                        s+=".";
-                                    else
-                                        s+=", ";
-                                }
-                                DocumentReference documentReference = reportsReference.document();
-                                newReport = new Report(reportTitle , s, documentReference.getId(), stringDate);
-                                newReport.setReportMembers(reportMembers);
-                                // add na coleção reports do bd
-                                documentReference.set(newReport).addOnSuccessListener(new OnSuccessListener<Void>() {
-                                    @Override
-                                    public void onSuccess(Void aVoid) {
-                                        // add na coleção de cada usuario de reportMembers
-                                        for(final User u : reportMembers){
-                                            DocumentReference userReportReference = FirebasePreferences.getFirebaseFirestore()
-                                                    .collection("users").document(u.getId()).collection("reports")
-                                                    .document(newReport.getReportId());
-                                            userReportReference.set(newReport)
-                                                    .addOnCompleteListener(new OnCompleteListener<Void>() {
-                                                        @Override
-                                                        public void onComplete(@NonNull Task<Void> task) {
-                                                            if (task.isSuccessful()) {
-                                                                if(u.getId() != currentUser.getId())
-                                                                    Toast.makeText(getActivity(), u.getName() + " adicionado(a)" , Toast.LENGTH_SHORT).show();
-                                                            } else {
-                                                                Toast.makeText(getActivity(),  "Falha ao adicionar " + u.getName(), Toast.LENGTH_LONG).show();
-                                                            }
-                                                        }
-                                                    });
-                                        }
-                                        openReport(newReport);
+                                if( users.size() > 0 ){
+                                    // cria um novo relatorio cos os usuarios selecionados na dialog
+                                    Calendar calendar = Calendar.getInstance();
+                                    SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd-HH:mm:ss.SSS");
+                                    String stringDate = dateFormat.format(calendar.getTime());
+                                    // prepara a lista de usuarios do relatorio
+                                    final ArrayList<User> reportMembers = new ArrayList<>();
+                                    users.add(currentUser); // add o currentUser ao relatorio tbm
+                                    seletedItems.add(users.size()-1);
+                                    for (int i = 0 ; i < seletedItems.size() ; i++){ // amigos que foram selecionados
+                                        reportMembers.add(users.get(seletedItems.get(i)));
                                     }
-                                });
+                                    // string com o nome de todos os usuarios do report
+                                    String s = "";
+                                    for(int i=0 ; i < reportMembers.size() ; i++){
+                                        s += reportMembers.get(i).getName();
+                                        if(i == reportMembers.size()-1)
+                                            s+=".";
+                                        else
+                                            s+=", ";
+                                    }
+                                    DocumentReference documentReference = reportsReference.document();
+                                    newReport = new Report(reportTitle , s, documentReference.getId(), stringDate);
+                                    newReport.setReportMembers(reportMembers);
+                                    // add na coleção reports do bd
+                                    documentReference.set(newReport).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                        @Override
+                                        public void onSuccess(Void aVoid) {
+                                            // add na coleção de cada usuario de reportMembers
+                                            for(final User u : reportMembers){
+                                                DocumentReference userReportReference = FirebasePreferences.getFirebaseFirestore()
+                                                        .collection("users").document(u.getId()).collection("reports")
+                                                        .document(newReport.getReportId());
+                                                userReportReference.set(newReport)
+                                                        .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                                            @Override
+                                                            public void onComplete(@NonNull Task<Void> task) {
+                                                                if (task.isSuccessful()) {
+                                                                    if(u.getId() != currentUser.getId())
+                                                                        Toast.makeText(getActivity(), u.getName() + " adicionado(a)" , Toast.LENGTH_SHORT).show();
+                                                                } else {
+                                                                    Toast.makeText(getActivity(),  "Falha ao adicionar " + u.getName(), Toast.LENGTH_LONG).show();
+                                                                }
+                                                            }
+                                                        });
+                                            }
+                                            openReport(newReport);
+                                        }
+                                    });
+                                }
                             }
                         })
                 .setNegativeButton("Cancelar",
