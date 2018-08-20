@@ -2,6 +2,7 @@ package br.thayllo.labdefisica.adapter;
 
 import android.app.Activity;
 import android.content.Context;
+import android.graphics.Color;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.support.annotation.NonNull;
@@ -12,6 +13,7 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
@@ -43,8 +45,8 @@ public class AttachmentAdapter extends ArrayAdapter<Attachment>{
         }
 
         // recupera elemento para exibição
-        ImageView photoImageView =  convertView.findViewById(R.id.photoImageView);
-        TextView messageTextView =  convertView.findViewById(R.id.messageTextView);
+        final ImageView photoImageView =  convertView.findViewById(R.id.photoImageView);
+        final TextView messageTextView =  convertView.findViewById(R.id.messageTextView);
         TextView authorTextView =  convertView.findViewById(R.id.sentByTextView);
         final ProgressBar downloadImageProgressBar = convertView.findViewById(R.id.downloadImageProgressBar);
 
@@ -54,18 +56,22 @@ public class AttachmentAdapter extends ArrayAdapter<Attachment>{
         if (isPhoto) {
             downloadImageProgressBar.setVisibility(View.VISIBLE);
             messageTextView.setVisibility(View.GONE);
-            photoImageView.setVisibility(View.VISIBLE);
             Picasso.get()
                     .load(attach.getPhotoUrl())
                     .into(photoImageView, new Callback() {
                         @Override
                         public void onSuccess() {
+                            photoImageView.setVisibility(View.VISIBLE);
                             downloadImageProgressBar.setVisibility(View.GONE);
                         }
-
                         @Override
                         public void onError(Exception e) {
-
+                            photoImageView.setVisibility(View.GONE);
+                            downloadImageProgressBar.setVisibility(View.GONE);
+                            messageTextView.setVisibility(View.VISIBLE);
+                            messageTextView.setText(R.string.upload_error_tip);
+                            messageTextView.setTextColor(Color.RED);
+                            //Toast.makeText(getContext(), e.toString(), Toast.LENGTH_LONG).show();
                         }
                     });
 

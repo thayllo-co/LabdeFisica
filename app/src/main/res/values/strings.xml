@@ -84,6 +84,7 @@
     <string name="sure_to_exit">Tem certeza que deseja sair?</string>
     <string name="upload_error">Erro ao eviar arquivo</string>
     <string name="delete_error">Erro ao excluir</string>
+    <string name="upload_error_tip">ERRO AO TRANSFERIR ARQUIVO!\nVerifique sua conexão e refaça a operação.</string>
     <string name="permissions_warning">Para continuar você precisa fornecer as permissões necessárias</string>
     <string name="new_report">Novo relatório</string>
     <string name="new_report_title">Novo título do seu relatório</string>

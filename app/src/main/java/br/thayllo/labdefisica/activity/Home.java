@@ -81,7 +81,7 @@ public class Home extends AppCompatActivity implements BottomNavigationView.OnNa
                             AuthUI.getInstance()
                                     .createSignInIntentBuilder()
                                     .setIsSmartLockEnabled(false)
-                                    .setLogo(R.drawable.app_logo)
+                                    .setLogo(R.drawable.logo)
                                     .setTheme(R.style.FirebaseUI)
                                     .setAvailableProviders(Arrays.asList(
                                             new AuthUI.IdpConfig.GoogleBuilder().build(),

@@ -2,11 +2,13 @@ package br.thayllo.labdefisica.helper;
 
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Environment;
+import android.support.v7.app.AlertDialog;
 import android.view.View;
 import android.widget.Toast;
 
@@ -77,7 +79,7 @@ public class GeneratePdfTask extends AsyncTask<ArrayList<Attachment>, Integer, U
                 docsFolder.mkdir();
             }
 
-            File pdfFile = new File(docsFolder.getAbsolutePath(),
+            final File pdfFile = new File(docsFolder.getAbsolutePath(),
                     currentReport.getreportTitle() +"-"+ currentReport.getReportId() + ".pdf");
 
             OutputStream output = new FileOutputStream(pdfFile);
@@ -188,18 +190,22 @@ public class GeneratePdfTask extends AsyncTask<ArrayList<Attachment>, Integer, U
 
         progressDialog.dismiss();
 
-        PackageManager packageManager = context.getPackageManager();
-        Intent testIntent = new Intent(Intent.ACTION_VIEW);
-        testIntent.setType("application/pdf");
-        List list = packageManager.queryIntentActivities(testIntent, PackageManager.MATCH_DEFAULT_ONLY);
+        Intent viewIntent = new Intent(Intent.ACTION_VIEW);
+        viewIntent.setDataAndType(uri, "application/pdf");
 
-        if (list.size() > 0) {
-            Intent intent = new Intent();
-            intent.setAction(Intent.ACTION_VIEW);
-            intent.setDataAndType(uri, "application/pdf");
-            context.startActivity(intent);
-        }else{
-            Toast.makeText(context,"PDF salvo em: " + uri.getPath() ,Toast.LENGTH_LONG).show();
+        Intent sendIntent = new Intent(Intent.ACTION_SEND);
+        sendIntent.setType("plain/text");
+        sendIntent.putExtra(Intent.EXTRA_EMAIL, new String[] {"thayllo.co@gmail.com"}); // recipients
+        sendIntent.putExtra(Intent.EXTRA_SUBJECT, "Relatório: " + currentReport.getreportTitle());
+        sendIntent.putExtra(Intent.EXTRA_STREAM, uri);
+        String s = "Edição:";
+        for(User u : currentReport.getReportMembers()){
+            s += "\n" + u.getName() + " - ID: " + u.getId();
         }
+        sendIntent.putExtra(android.content.Intent.EXTRA_TEXT, s);
+
+        Intent chooserIntent = Intent.createChooser(sendIntent, "Abrir usando...");
+        chooserIntent.putExtra(Intent.EXTRA_INITIAL_INTENTS, new Intent[] { viewIntent });
+        context.startActivity(chooserIntent);
     }
 }

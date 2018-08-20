@@ -32,6 +32,7 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 
@@ -75,6 +76,8 @@ public class ReportList extends Fragment {
     private CollectionReference myContactsReference;
     private CollectionReference myReportsReference;
     private DocumentReference selectedReportReference;
+    private EventListener<QuerySnapshot> reportsEventListener;
+    private ListenerRegistration reportsListenerRegistration;
 
     public ReportList() {
         // Required empty public constructor
@@ -104,70 +107,67 @@ public class ReportList extends Fragment {
         reportsAdapter = new ReportAdapter( getActivity() , reportList);
         repostsListView.setAdapter( reportsAdapter );
 
-        myReportsReference
-                .orderBy("reportAddedAt", Query.Direction.ASCENDING)
-                .addSnapshotListener(new EventListener<QuerySnapshot>() {
-                            @Override
-                            public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException e) {
-                                if (e != null) {
-                                    Log.w(TAG, "Listen failed.", e);
-                                    return;
-                                }
-                                Report report;
-                                for(DocumentChange doc : queryDocumentSnapshots.getDocumentChanges()){
-                                    switch (doc.getType()) {
-                                        case ADDED:
-                                            reportList.add(doc.getDocument().toObject(Report.class));
-                                            reportsAdapter.notifyDataSetChanged();
-                                            break;
-                                        case MODIFIED:
-                                            report = doc.getDocument().toObject(Report.class);
-                                            for (Report r : reportList){
-                                                if(r.getReportId().equals(report.getReportId())){
-                                                    reportList.get(reportList.indexOf(r)).setReportTitle(report.getreportTitle());
-                                                    reportsAdapter.notifyDataSetChanged();
-                                                }
-                                            }
-                                            break;
-                                        case REMOVED:
-                                            report = doc.getDocument().toObject(Report.class);
-                                            Iterator<Report> a = reportList.iterator();
-                                            while(a.hasNext()){
-                                                if(a.next().getReportId().equals(report.getReportId()))
-                                                    a.remove();
-                                            }
-                                            break;
-                                    }
-                                }
-                                reportsAdapter.notifyDataSetChanged();
-                                if(reportList.size() < 1 ){
-                                    emptyReportListTextView.setVisibility(View.VISIBLE);
-                                    repostsListView.setVisibility(View.GONE);
-                                    reportHeaderTextView.setVisibility(View.GONE);
-                                } else {
-                                    emptyReportListTextView.setVisibility(View.GONE);
-                                    repostsListView.setVisibility(View.VISIBLE);
-                                    reportHeaderTextView.setVisibility(View.VISIBLE);
+        reportsEventListener = new EventListener<QuerySnapshot>() {
+            @Override
+            public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException e) {
+                if (e != null) {
+                    Log.w(TAG, "Listen failed.", e);
+                    return;
+                }
+                Report report;
+                for(DocumentChange doc : queryDocumentSnapshots.getDocumentChanges()){
+                    switch (doc.getType()) {
+                        case ADDED:
+                            reportList.add(doc.getDocument().toObject(Report.class));
+                            reportsAdapter.notifyDataSetChanged();
+                            break;
+                        case MODIFIED:
+                            report = doc.getDocument().toObject(Report.class);
+                            for (Report r : reportList){
+                                if(r.getReportId().equals(report.getReportId())){
+                                    reportList.get(reportList.indexOf(r)).setReportTitle(report.getreportTitle());
+                                    reportsAdapter.notifyDataSetChanged();
                                 }
                             }
-                        }
-                );
+                            break;
+                        case REMOVED:
+                            report = doc.getDocument().toObject(Report.class);
+                            Iterator<Report> a = reportList.iterator();
+                            while(a.hasNext()){
+                                if(a.next().getReportId().equals(report.getReportId()))
+                                    a.remove();
+                            }
+                            break;
+                    }
+                }
+                reportsAdapter.notifyDataSetChanged();
+                if(reportList.size() < 1 ){
+                    emptyReportListTextView.setVisibility(View.VISIBLE);
+                    repostsListView.setVisibility(View.GONE);
+                    reportHeaderTextView.setVisibility(View.GONE);
+                } else {
+                    emptyReportListTextView.setVisibility(View.GONE);
+                    repostsListView.setVisibility(View.VISIBLE);
+                    reportHeaderTextView.setVisibility(View.VISIBLE);
+                }
+            }
+        };
 
         friendsList = new ArrayList<>();
         friendsDialogList = new ArrayList<>();
         // carrega a lista de amigos do usuario
         myContactsReference
                 .orderBy("name", Query.Direction.ASCENDING)
-                .addSnapshotListener(getActivity(), new EventListener<QuerySnapshot>() {
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
-                    public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException e) {
-                        if (e != null) {
-                            return;
-                        }
-                        for(DocumentSnapshot doc : queryDocumentSnapshots){
-                            User u  = doc.toObject(User.class);
-                            friendsList.add(u);
-                            friendsDialogList.add(u.getName());
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if(task.isSuccessful()){
+                            for(DocumentSnapshot doc : task.getResult()){
+                                User u  = doc.toObject(User.class);
+                                friendsList.add(u);
+                                friendsDialogList.add(u.getName());
+                            }
                         }
                     }
                 });
@@ -219,6 +219,23 @@ public class ReportList extends Fragment {
         });
 
         return view;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (reportsListenerRegistration == null ) {
+            reportsListenerRegistration = myReportsReference.orderBy("reportAddedAt", Query.Direction.ASCENDING)
+                    .addSnapshotListener(reportsEventListener);
+        }
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        if (reportsListenerRegistration != null) {
+            reportsListenerRegistration.remove();
+        }
     }
 
     private void setReportTitle() {

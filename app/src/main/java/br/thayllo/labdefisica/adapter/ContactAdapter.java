@@ -7,8 +7,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
@@ -39,15 +41,28 @@ public class ContactAdapter extends ArrayAdapter<User> {
             // recupera elemento para exibição
             TextView nomeContato = view.findViewById(R.id.contactNameTextView);
             TextView emailContato = view.findViewById(R.id.contactEmailTextView);
-            CircleImageView profilePicCircleImageView = view.findViewById(R.id.profilePicCircleImageView);
+            final CircleImageView profilePicCircleImageView = view.findViewById(R.id.profilePicCircleImageView);
+            final ProgressBar progressBarProfilePic = view.findViewById(R.id.progressBarProfilePic);
 
-            User contato = contatos.get( position );
-            nomeContato.setText( contato.getName() );
-            emailContato.setText( contato.getEmail() );
-            if(contato.getPhotoUrl() != null){
+            User contato = contatos.get(position);
+            nomeContato.setText(contato.getName());
+            emailContato.setText(contato.getEmail());
+            if (contato.getPhotoUrl() != null) {
+                progressBarProfilePic.setVisibility(View.VISIBLE);
                 Picasso.get()
                         .load(contato.getPhotoUrl())
-                        .into(profilePicCircleImageView);
+                        .into(profilePicCircleImageView, new Callback() {
+                            @Override
+                            public void onSuccess() {
+                                progressBarProfilePic.setVisibility(View.GONE);
+                            }
+
+                            @Override
+                            public void onError(Exception e) {
+                                progressBarProfilePic.setVisibility(View.GONE);
+                                profilePicCircleImageView.setImageResource(R.drawable.profile_person);
+                            }
+                        });
             }
         }
 

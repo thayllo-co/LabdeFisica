@@ -1,5 +1,7 @@
 package br.thayllo.labdefisica.model;
 
+import java.util.ArrayList;
+
 public class User {
 
     private String id;
@@ -7,6 +9,7 @@ public class User {
     private String name;
     private String email;
     private String photoUrl;
+    //private ArrayList<String> friends;
 
     public User() {}
 

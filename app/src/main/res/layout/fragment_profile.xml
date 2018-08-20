@@ -80,6 +80,17 @@
             android:layout_marginLeft="@dimen/activity_horizontal_margin"
             android:src="@drawable/profile_person"/>
 
+        <ProgressBar
+            android:id="@+id/profileProgressBarProfilePic"
+            style="?android:attr/progressBarStyle"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:layout_alignStart="@+id/profileCircleImageView"
+            android:layout_alignTop="@+id/profileCircleImageView"
+            android:visibility="gone"
+            android:layout_alignLeft="@+id/profileCircleImageView" />
+
+
         <FrameLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"

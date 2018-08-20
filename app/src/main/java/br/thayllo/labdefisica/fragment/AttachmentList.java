@@ -25,6 +25,7 @@ import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.storage.StorageReference;
@@ -57,6 +58,8 @@ public class AttachmentList extends Fragment {
     private StorageReference storageRef;
 
     private CollectionReference currentTabFirebaseFirestore;
+    private EventListener<QuerySnapshot> attachmentsEventListener;
+    private ListenerRegistration attachmentsListenerRegistration;
 
     public AttachmentList() {
         // Required empty public constructor
@@ -86,42 +89,39 @@ public class AttachmentList extends Fragment {
         attachmentsAdapter = new AttachmentAdapter(getActivity(), tabContentList);
         attachmentsListView.setAdapter( attachmentsAdapter );
 
-        currentTabFirebaseFirestore
-                .orderBy("attachedAt", Query.Direction.ASCENDING)
-                .addSnapshotListener( new EventListener<QuerySnapshot>() {
-                    @Override
-                    public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException e) {
-                        if (e != null) {
-                            Log.w(TAG, "Listen failed.", e);
-                            return;
-                        }
-                        Attachment attachment;
-                        for(DocumentChange doc : queryDocumentSnapshots.getDocumentChanges()){
-                            switch (doc.getType()) {
-                                case ADDED:
-                                    tabContentList.add(doc.getDocument().toObject(Attachment.class));
-                                    attachmentsAdapter.notifyDataSetChanged();
-                                    break;
-                                case MODIFIED: // ainda não é possivel modificar os anexos
-                                    break;
-                                case REMOVED:
-                                    attachment = doc.getDocument().toObject(Attachment.class);
-                                    Iterator<Attachment> a = tabContentList.iterator();
-                                    while(a.hasNext()){
-                                        if(a.next().getId().equals(attachment.getId()))
-                                            a.remove();
-                                    }
-                                    break;
-                            }
-                            attachmentsAdapter.notifyDataSetChanged();
-                        }
-                        if(tabContentList.size() < 1 )
-                            emptyAttachmentListTextView.setVisibility(View.VISIBLE);
-                        else
-                            emptyAttachmentListTextView.setVisibility(View.GONE);
-                    }
+        attachmentsEventListener = new EventListener<QuerySnapshot>() {
+            @Override
+            public void onEvent(@javax.annotation.Nullable QuerySnapshot queryDocumentSnapshots, @javax.annotation.Nullable FirebaseFirestoreException e) {
+                if (e != null) {
+                    Log.w(TAG, "Listen failed.", e);
+                    return;
                 }
-        );
+                Attachment attachment;
+                for(DocumentChange doc : queryDocumentSnapshots.getDocumentChanges()){
+                    switch (doc.getType()) {
+                        case ADDED:
+                            tabContentList.add(doc.getDocument().toObject(Attachment.class));
+                            attachmentsAdapter.notifyDataSetChanged();
+                            break;
+                        case MODIFIED: // ainda não é possivel modificar os anexos
+                            break;
+                        case REMOVED:
+                            attachment = doc.getDocument().toObject(Attachment.class);
+                            Iterator<Attachment> a = tabContentList.iterator();
+                            while(a.hasNext()){
+                                if(a.next().getId().equals(attachment.getId()))
+                                    a.remove();
+                            }
+                            break;
+                    }
+                    attachmentsAdapter.notifyDataSetChanged();
+                }
+                if(tabContentList.size() < 1 )
+                    emptyAttachmentListTextView.setVisibility(View.VISIBLE);
+                else
+                    emptyAttachmentListTextView.setVisibility(View.GONE);
+            }
+        };
 
         //Adicionar evento de clique longo na lista para excluir item
         attachmentsListView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
@@ -141,6 +141,23 @@ public class AttachmentList extends Fragment {
         });
 
         return view;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (attachmentsListenerRegistration == null ) {
+            attachmentsListenerRegistration = currentTabFirebaseFirestore.orderBy("attachedAt", Query.Direction.ASCENDING)
+                    .addSnapshotListener(attachmentsEventListener);
+        }
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        if (attachmentsListenerRegistration != null) {
+            attachmentsListenerRegistration.remove();
+        }
     }
 
     public void deleteAttachment(){

@@ -42,8 +42,10 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
@@ -76,6 +78,9 @@ public class Profile extends Fragment {
     private LinearLayout profileLinearLayout;
     private CollectionReference usersFirebaseFirestore = FirebasePreferences.getFirebaseFirestore()
             .collection("users");
+    private EventListener<QuerySnapshot> friendsEventListener;
+    private ListenerRegistration friendsListenerRegistration;
+    private ProgressBar popupProgressBarProfilePic;
 
     public Profile() {
         // Required empty public constructor
@@ -93,6 +98,7 @@ public class Profile extends Fragment {
         profileToolbar = view.findViewById(R.id.profileToolbar);
         profileCircleImageView = view.findViewById(R.id.profileCircleImageView);
         profileLinearLayout = view.findViewById(R.id.profileLinearLayout);
+        popupProgressBarProfilePic = view.findViewById(R.id.profileProgressBarProfilePic);
 
         // configura o ActionBar
         setHasOptionsMenu(true);
@@ -105,57 +111,64 @@ public class Profile extends Fragment {
         userNameTextView.setText(currentUser.getName());
         userEmailTextView.setText(currentUser.getEmail());
 
-        // carrega foto do perfil
-        if(currentUser.getPhotoUrl() != null){
-            Picasso.get()
-                    .load(currentUser.getPhotoUrl())
-                    .into(profileCircleImageView);
-        } else {
-            profileCircleImageView.setImageDrawable(ContextCompat.getDrawable(getContext(),R.drawable.profile_person));
-        }
-
-        myContactsReference = FirebasePreferences.getFirebaseFirestore()
-                .collection("users").document(currentUser.getId()).collection("contacts");
+        myContactsReference = usersFirebaseFirestore.document(currentUser.getId()).collection("contacts");
 
         friendsList = new ArrayList<>();
         friendsAdapter = new ContactAdapter( getActivity() , friendsList);
         friendsListView.setAdapter( friendsAdapter );
 
-        myContactsReference
-                .orderBy("name", Query.Direction.ASCENDING)
-                .addSnapshotListener(new EventListener<QuerySnapshot>() {
-                    @Override
-                    public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException e) {
-                        if (e != null) {
-                            return;
-                        }
-                        User user;
-                        for(DocumentChange doc : queryDocumentSnapshots.getDocumentChanges()){
-                            switch (doc.getType()) {
-                                case ADDED:
-                                    friendsList.add(doc.getDocument().toObject(User.class));
-                                    friendsAdapter.notifyDataSetChanged();
-                                    break;
-                                case MODIFIED: // ainda não é possivel modificar contatos
-                                    break;
-                                case REMOVED: //implementado tratamento mas não seu uso ainda
-                                    user = doc.getDocument().toObject(User.class);
-                                    Iterator<User> a = friendsList.iterator();
-                                    while(a.hasNext()){
-                                        if(a.next().getId().equals(user.getId()))
-                                            a.remove();
-                                    }
-                                    break;
-                            }
-
+        friendsEventListener = new EventListener<QuerySnapshot>() {
+            @Override
+            public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException e) {
+                if (e != null) {
+                    return;
+                }
+                User user;
+                for(DocumentChange doc : queryDocumentSnapshots.getDocumentChanges()){
+                    switch (doc.getType()) {
+                        case ADDED:
+                            friendsList.add(doc.getDocument().toObject(User.class));
                             friendsAdapter.notifyDataSetChanged();
-                        }
-                        if(friendsList.size() < 1)
-                            profileLinearLayout.setVisibility(View.VISIBLE);
-                        else
-                            profileLinearLayout.setVisibility(View.GONE);
+                            break;
+                        case MODIFIED: // ainda não é possivel modificar contatos
+                            break;
+                        case REMOVED:
+                            user = doc.getDocument().toObject(User.class);
+                            Iterator<User> a = friendsList.iterator();
+                            while(a.hasNext()){
+                                if(a.next().getId().equals(user.getId()))
+                                    a.remove();
+                            }
+                            break;
                     }
-                });
+                    friendsAdapter.notifyDataSetChanged();
+                }
+                if(friendsList.size() < 1)
+                    profileLinearLayout.setVisibility(View.VISIBLE);
+                else
+                    profileLinearLayout.setVisibility(View.GONE);
+            }
+        };
+
+        // carrega foto do perfil
+        if(currentUser.getPhotoUrl() != null){
+            popupProgressBarProfilePic.setVisibility(View.VISIBLE);
+            Picasso.get()
+                    .load(currentUser.getPhotoUrl())
+                    .into(profileCircleImageView, new Callback() {
+                        @Override
+                        public void onSuccess() {
+                            popupProgressBarProfilePic.setVisibility(View.GONE);
+                        }
+                        @Override
+                        public void onError(Exception e) {
+                            popupProgressBarProfilePic.setVisibility(View.GONE);
+                            profileCircleImageView.setImageResource(R.drawable.profile_person);
+                        }
+                    });
+        } else {
+            profileCircleImageView.setImageResource(R.drawable.profile_person);
+        }
 
         friendsListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -207,6 +220,23 @@ public class Profile extends Fragment {
             }
         });
         return view;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (friendsListenerRegistration == null ) {
+            friendsListenerRegistration = myContactsReference.orderBy("name", Query.Direction.ASCENDING)
+                    .addSnapshotListener(friendsEventListener);
+        }
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        if (friendsListenerRegistration != null) {
+            friendsListenerRegistration.remove();
+        }
     }
 
     @Override
@@ -332,13 +362,26 @@ public class Profile extends Fragment {
         TextView email = alertLayout.findViewById(R.id.popupEmailTextView);
         Button add = alertLayout.findViewById(R.id.popupAddFriendButton);
         final ProgressBar profileProgressBar = alertLayout.findViewById(R.id.popupProgressBar);
-        CircleImageView popupCircleImageView = alertLayout.findViewById(R.id.popupCircleImageView);
+        final CircleImageView popupCircleImageView = alertLayout.findViewById(R.id.popupCircleImageView);
+        final ProgressBar profileProgressBarProfilePic =alertLayout.findViewById(R.id.profileProgressBarProfilePic);
 
         // carrega a foto do usuario de houver
         if(user.getPhotoUrl() != null){
+            popupCircleImageView.setImageResource(R.drawable.profile_person);
             Picasso.get()
                     .load(user.getPhotoUrl())
-                    .into(popupCircleImageView);
+                    .into(popupCircleImageView, new Callback() {
+                        @Override
+                        public void onSuccess() {
+                            profileProgressBarProfilePic.setVisibility(View.GONE);
+                        }
+
+                        @Override
+                        public void onError(Exception e) {
+                            profileProgressBarProfilePic.setVisibility(View.GONE);
+                            popupCircleImageView.setImageResource(R.drawable.profile_person);
+                        }
+                    });
         }
         // verifica se é o proprio usuario
         if(user.getId().equals(currentUser.getId()))
@@ -363,6 +406,7 @@ public class Profile extends Fragment {
                 // add novo usuario a sua lista de contatos
                 profileProgressBar.setVisibility(View.VISIBLE);
                 DocumentReference myReference = myContactsReference.document(user.getId());
+
                 final DocumentReference friendReference = usersFirebaseFirestore.document(user.getId())
                         .collection("contacts").document(currentUser.getId());
 
