@@ -340,7 +340,7 @@ public class ReportList extends Fragment {
             new AlertDialog.Builder(getActivity())
                     .setTitle("Alerta")
                     .setIcon(R.drawable.ic_warning)
-                    .setMessage( "Você não possui amigos, adicione novos amigos em seu perfil.")
+                    .setMessage( "Você não possui amigos, adicione novos em seu perfil.")
                     .setPositiveButton("OK",
                             new DialogInterface.OnClickListener() {
                                 @Override
@@ -482,12 +482,22 @@ public class ReportList extends Fragment {
     }
 
     private void updateReportTitle() {
+
+        LinearLayout container = new LinearLayout(getActivity());
+        container.setOrientation(LinearLayout.VERTICAL);
+        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,LinearLayout.LayoutParams.WRAP_CONTENT);
+        lp.setMargins(20,0,20,0);
         final EditText editText = new EditText(getActivity());
+        editText.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_CAP_WORDS);
+        editText.setLines(1);
+        editText.setMaxLines(1);
+        container.addView(editText,lp);
+
         new AlertDialog.Builder(getActivity())
                 .setTitle(R.string.rename_report)
                 .setMessage(R.string.new_report_title)
                 .setCancelable(false)
-                .setView( editText )
+                .setView( container )
                 .setPositiveButton(R.string.rename, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {

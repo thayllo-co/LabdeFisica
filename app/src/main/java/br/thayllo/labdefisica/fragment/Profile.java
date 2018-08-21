@@ -363,22 +363,22 @@ public class Profile extends Fragment {
         Button add = alertLayout.findViewById(R.id.popupAddFriendButton);
         final ProgressBar profileProgressBar = alertLayout.findViewById(R.id.popupProgressBar);
         final CircleImageView popupCircleImageView = alertLayout.findViewById(R.id.popupCircleImageView);
-        final ProgressBar profileProgressBarProfilePic =alertLayout.findViewById(R.id.profileProgressBarProfilePic);
+        final ProgressBar popupProgressBarProfilePic = alertLayout.findViewById(R.id.popupProgressBarProfilePic);
 
         // carrega a foto do usuario de houver
         if(user.getPhotoUrl() != null){
-            popupCircleImageView.setImageResource(R.drawable.profile_person);
+            popupProgressBarProfilePic.setVisibility(View.VISIBLE);
             Picasso.get()
                     .load(user.getPhotoUrl())
                     .into(popupCircleImageView, new Callback() {
                         @Override
                         public void onSuccess() {
-                            profileProgressBarProfilePic.setVisibility(View.GONE);
+                            popupProgressBarProfilePic.setVisibility(View.GONE);
                         }
 
                         @Override
                         public void onError(Exception e) {
-                            profileProgressBarProfilePic.setVisibility(View.GONE);
+                            popupProgressBarProfilePic.setVisibility(View.GONE);
                             popupCircleImageView.setImageResource(R.drawable.profile_person);
                         }
                     });
