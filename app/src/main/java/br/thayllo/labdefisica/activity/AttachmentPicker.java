@@ -1,6 +1,8 @@
 package br.thayllo.labdefisica.activity;
 
 import android.content.DialogInterface;
+import android.content.IntentFilter;
+import android.net.ConnectivityManager;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
@@ -16,6 +18,7 @@ import br.thayllo.labdefisica.fragment.LineChartPicker;
 import br.thayllo.labdefisica.fragment.PieChartPicker;
 import br.thayllo.labdefisica.fragment.TablePicker;
 import br.thayllo.labdefisica.fragment.TextPicker;
+import br.thayllo.labdefisica.helper.NetworkChangeReceiver;
 import br.thayllo.labdefisica.model.AttachmentType;
 
 // Activity que trata como proceder com o tipo de anexo selecionado
@@ -23,6 +26,7 @@ public class AttachmentPicker extends AppCompatActivity {
 
     private AttachmentType attachmentType;
     private Toolbar toolbar;
+    private NetworkChangeReceiver networkChangeReceiver;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,6 +42,21 @@ public class AttachmentPicker extends AppCompatActivity {
             attachmentType = (AttachmentType) extra.get("AttachmentType");
             setFragmentView( attachmentType );
         }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        // configura o verificador de conexão com a internet
+        networkChangeReceiver = new NetworkChangeReceiver();
+        IntentFilter filter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
+        registerReceiver(networkChangeReceiver, filter);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        unregisterReceiver(networkChangeReceiver);
     }
 
     @Override

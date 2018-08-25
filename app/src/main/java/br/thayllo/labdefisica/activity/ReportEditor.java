@@ -3,22 +3,20 @@ package br.thayllo.labdefisica.activity;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.net.ConnectivityManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.EditText;
-import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.Continuation;
@@ -27,31 +25,26 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.CollectionReference;
-import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.EventListener;
-import com.google.firebase.firestore.FirebaseFirestoreException;
-import com.google.firebase.firestore.QuerySnapshot;
-import com.google.firebase.storage.OnProgressListener;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 import com.theartofdev.edmodo.cropper.CropImage;
 import com.theartofdev.edmodo.cropper.CropImageView;
 
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Calendar;
 
 import br.thayllo.labdefisica.R;
 import br.thayllo.labdefisica.adapter.TabAdapter;
+import br.thayllo.labdefisica.helper.NetworkChangeReceiver;
+import br.thayllo.labdefisica.helper.SlidingTabLayout;
 import br.thayllo.labdefisica.model.Attachment;
 import br.thayllo.labdefisica.model.AttachmentType;
 import br.thayllo.labdefisica.model.Report;
 import br.thayllo.labdefisica.model.User;
 import br.thayllo.labdefisica.settings.FirebasePreferences;
 import br.thayllo.labdefisica.settings.Preferences;
-import br.thayllo.labdefisica.helper.SlidingTabLayout;
 
 public class ReportEditor extends AppCompatActivity implements OnSuccessListener<Uri>, OnFailureListener{
 
@@ -78,6 +71,7 @@ public class ReportEditor extends AppCompatActivity implements OnSuccessListener
     private DocumentReference attachmentReference;
     private DocumentReference currentReportReference;
     private StorageReference imageRef;
+    private NetworkChangeReceiver networkChangeReceiver;
 
 
     @Override
@@ -144,6 +138,21 @@ public class ReportEditor extends AppCompatActivity implements OnSuccessListener
                 attachmentChooser();
             }
         });
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        // configura o verificador de conexão com a internet
+        networkChangeReceiver = new NetworkChangeReceiver();
+        IntentFilter filter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
+        registerReceiver(networkChangeReceiver, filter);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        unregisterReceiver(networkChangeReceiver);
     }
 
     // set up do menu

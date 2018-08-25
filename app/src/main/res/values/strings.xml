@@ -60,6 +60,7 @@
 
     <string name="hint_text">Digite seu texto aqui</string>
     <string name="sure_to_attach">Tem certeza que deseja anexar conteúdo ao seu relatório?</string>
+    <string name="no_internet_connection">SEM CONEXÃO COM A INTERNET</string>
     <string name="confirmation">Confirmar</string>
     <string name="attach">Anexar</string>
     <string name="cancel">Cancelar</string>
@@ -94,6 +95,7 @@
     <string name="empty_screen_tip">Clique no botão para adicionar algum conteúdo</string>
     <string name="empty_report_list">Clique no botão para criar um novo relatório</string>
     <string name="email_tip">Digite o e-mail</string>
+    <string name="connection_info">Para o perfeito funcionamento do app verifique sua conexão com a internet.</string>
     <string name="reports_in_progress">Relatórios em andamento</string>
     <string name="report_type">Tipo de relatório</string>
     <string name="my_reports">MEUS RELATÓRIOS</string>
@@ -108,6 +110,7 @@
     <string name="generating_pdf">Gerando PDF...</string>
     <string name="uploading_attachment">Enviando anexo...</string>
     <string name="my_info">Meu perfil</string>
+    <string name="info">Informação</string>
     <string name="title_activity_home">Home</string>
     <string name="title_home">Home</string>
     <string name="title_dashboard">Dashboard</string>
@@ -122,5 +125,7 @@
     <string name="signin_canceled">Login cancelado</string>
     <string name="individual">Individual</string>
     <string name="group">Grupo</string>
+    <string name="ok">OK</string>
+    <string name="close">Fechar</string>
 
 </resources>

@@ -3,7 +3,9 @@ package br.thayllo.labdefisica.activity;
 import android.Manifest;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
+import android.net.ConnectivityManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -25,13 +27,13 @@ import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 
 import java.util.Arrays;
-import java.util.List;
 
 import br.thayllo.labdefisica.R;
 import br.thayllo.labdefisica.fragment.Laboratory;
 import br.thayllo.labdefisica.fragment.Profile;
 import br.thayllo.labdefisica.fragment.ReportList;
 import br.thayllo.labdefisica.helper.Base64Custom;
+import br.thayllo.labdefisica.helper.NetworkChangeReceiver;
 import br.thayllo.labdefisica.model.User;
 import br.thayllo.labdefisica.settings.FirebasePreferences;
 import br.thayllo.labdefisica.settings.Preferences;
@@ -53,6 +55,7 @@ public class Home extends AppCompatActivity implements BottomNavigationView.OnNa
     private FirebaseAuth mFirebaseAuth = FirebasePreferences.getFirebaseAuth();
     private CollectionReference usersFirebaseFirestore = FirebasePreferences.getFirebaseFirestore()
             .collection("users");
+    private NetworkChangeReceiver networkChangeReceiver;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -92,6 +95,7 @@ public class Home extends AppCompatActivity implements BottomNavigationView.OnNa
                 }
             }
         };
+
     }
 
     @Override
@@ -101,6 +105,10 @@ public class Home extends AppCompatActivity implements BottomNavigationView.OnNa
         mFirebaseAuth.addAuthStateListener(mAuthStateListener);
         // configura permissões
         permissionsSetUp();
+        // configura o verificador de conexão com a internet
+        networkChangeReceiver = new NetworkChangeReceiver();
+        IntentFilter filter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
+        registerReceiver(networkChangeReceiver, filter);
     }
 
     @Override
@@ -110,6 +118,7 @@ public class Home extends AppCompatActivity implements BottomNavigationView.OnNa
         if (mAuthStateListener != null) {
             mFirebaseAuth.removeAuthStateListener(mAuthStateListener);
         }
+        unregisterReceiver(networkChangeReceiver);
     }
 
     @Override
@@ -180,7 +189,7 @@ public class Home extends AppCompatActivity implements BottomNavigationView.OnNa
         return false;
     }
 
-    public void permissionsSetUp(){
+    private void permissionsSetUp(){
 
         int permission = ContextCompat.checkSelfPermission( this, Manifest.permission.WRITE_EXTERNAL_STORAGE);
 

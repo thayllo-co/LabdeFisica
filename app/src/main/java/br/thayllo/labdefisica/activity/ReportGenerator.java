@@ -3,6 +3,8 @@ package br.thayllo.labdefisica.activity;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.net.ConnectivityManager;
 import android.net.Uri;
 import android.os.Environment;
 import android.os.Handler;
@@ -42,6 +44,7 @@ import java.util.concurrent.ExecutionException;
 import br.thayllo.labdefisica.R;
 import br.thayllo.labdefisica.adapter.AttachmentAdapter;
 import br.thayllo.labdefisica.helper.GeneratePdfTask;
+import br.thayllo.labdefisica.helper.NetworkChangeReceiver;
 import br.thayllo.labdefisica.model.Attachment;
 import br.thayllo.labdefisica.model.Report;
 import br.thayllo.labdefisica.model.User;
@@ -70,6 +73,7 @@ public class ReportGenerator extends AppCompatActivity {
     private DocumentReference tabsDocumentReference;
     private Preferences preferences;
     private DocumentReference currentReportReference;
+    private NetworkChangeReceiver networkChangeReceiver;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -195,5 +199,20 @@ public class ReportGenerator extends AppCompatActivity {
                 }
             }
         });
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        // configura o verificador de conexão com a internet
+        networkChangeReceiver = new NetworkChangeReceiver();
+        IntentFilter filter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
+        registerReceiver(networkChangeReceiver, filter);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        unregisterReceiver(networkChangeReceiver);
     }
 }
