@@ -91,7 +91,7 @@ public class ReportList extends Fragment {
 
         reportHeaderTextView = view.findViewById(R.id.reportHeaderTextView);
         repostsListView = view.findViewById(R.id.reportsListView);
-        addReportFAB = view.findViewById(R.id.addRepoortFloatingActionButton);
+        addReportFAB = view.findViewById(R.id.addReportFloatingActionButton);
         emptyReportListTextView = view.findViewById(R.id.emptyReportListTextView);
 
         // Pega os dados do usuario das preferencias

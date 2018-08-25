@@ -18,6 +18,24 @@ import br.thayllo.labdefisica.R;
 
 public class NetworkChangeReceiver extends BroadcastReceiver {
 
+    private TSnackbar tSnackbar;
+
+    public NetworkChangeReceiver(final Context context) {
+        tSnackbar = TSnackbar.make(((Activity)context).getWindow().getDecorView().findViewById(android.R.id.content),
+                "SEM CONEXÃO INTERNET", TSnackbar.LENGTH_INDEFINITE)
+                .setAction( R.string.close, new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        Toast.makeText(context, R.string.connection_info, Toast.LENGTH_LONG).show();
+                    }
+                });
+        tSnackbar.setActionTextColor(Color.GRAY);
+        tSnackbar.getView().setBackgroundColor(Color.RED);
+        TextView textView = (TextView) tSnackbar.getView().findViewById(com.androidadvance.topsnackbar.R.id.snackbar_text);
+        textView.setTypeface(textView.getTypeface(), Typeface.BOLD);
+        textView.setTextColor(Color.WHITE);
+    }
+
     @Override
     public void onReceive(final Context context, Intent intent) {
 
@@ -25,24 +43,10 @@ public class NetworkChangeReceiver extends BroadcastReceiver {
         NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
         boolean isConnected = activeNetwork != null && activeNetwork.isConnectedOrConnecting();
 
-        final TSnackbar snackbar = TSnackbar
-                .make(((Activity)context).getWindow().getDecorView().findViewById(android.R.id.content), "SEM CONEXÃO INTERNET", TSnackbar.LENGTH_INDEFINITE)
-                        .setAction( R.string.close, new View.OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-                                Toast.makeText(context, R.string.connection_info, Toast.LENGTH_LONG).show();
-                            }
-                        });
-        snackbar.setActionTextColor(Color.GRAY);
-        snackbar.getView().setBackgroundColor(Color.RED);
-        TextView textView = (TextView) snackbar.getView().findViewById(com.androidadvance.topsnackbar.R.id.snackbar_text);
-        textView.setTypeface(textView.getTypeface(), Typeface.BOLD);
-        textView.setTextColor(Color.WHITE);
-
         if(!isConnected){
-            snackbar.show();
+            tSnackbar.show();
         } else {
-            snackbar.dismiss();
+            tSnackbar.dismiss();
         }
     }
 }

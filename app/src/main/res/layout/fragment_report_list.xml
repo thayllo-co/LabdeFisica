@@ -34,7 +34,7 @@
             android:visibility="gone"/>
 
         <android.support.design.widget.FloatingActionButton
-            android:id="@+id/addRepoortFloatingActionButton"
+            android:id="@+id/addReportFloatingActionButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentBottom="true"

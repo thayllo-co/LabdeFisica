@@ -144,7 +144,7 @@ public class ReportEditor extends AppCompatActivity implements OnSuccessListener
     protected void onResume() {
         super.onResume();
         // configura o verificador de conexão com a internet
-        networkChangeReceiver = new NetworkChangeReceiver();
+        networkChangeReceiver = new NetworkChangeReceiver(ReportEditor.this);
         IntentFilter filter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
         registerReceiver(networkChangeReceiver, filter);
     }

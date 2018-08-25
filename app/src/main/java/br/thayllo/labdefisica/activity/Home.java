@@ -16,6 +16,7 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.Toast;
 
 import com.firebase.ui.auth.AuthUI;
@@ -26,7 +27,9 @@ import com.google.firebase.auth.FirebaseUserMetadata;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import br.thayllo.labdefisica.R;
 import br.thayllo.labdefisica.fragment.Laboratory;
@@ -56,6 +59,7 @@ public class Home extends AppCompatActivity implements BottomNavigationView.OnNa
     private CollectionReference usersFirebaseFirestore = FirebasePreferences.getFirebaseFirestore()
             .collection("users");
     private NetworkChangeReceiver networkChangeReceiver;
+    //private List<View> checkAvailabilityViews = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -106,7 +110,8 @@ public class Home extends AppCompatActivity implements BottomNavigationView.OnNa
         // configura permissões
         permissionsSetUp();
         // configura o verificador de conexão com a internet
-        networkChangeReceiver = new NetworkChangeReceiver();
+        //checkAvailabilityViews.add(findViewById(R.id.addReportFloatingActionButton));
+        networkChangeReceiver = new NetworkChangeReceiver(Home.this);
         IntentFilter filter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
         registerReceiver(networkChangeReceiver, filter);
     }

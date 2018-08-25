@@ -205,7 +205,7 @@ public class ReportGenerator extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         // configura o verificador de conexão com a internet
-        networkChangeReceiver = new NetworkChangeReceiver();
+        networkChangeReceiver = new NetworkChangeReceiver(ReportGenerator.this);
         IntentFilter filter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
         registerReceiver(networkChangeReceiver, filter);
     }
